@@ -7,8 +7,20 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.12"
+requests = "^2.31.0"
+bs4 = "^0.0.1"
+feedparser = "^6.0.10"
+rich = "^13.7.0"
+appdirs = "^1.4.4"
+textual = "^0.46.0"
 
+
+[tool.poetry.group.dev.dependencies]
+textual-dev = "^1.2.1"
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+rss = 'rss_cli.__init__:main'
