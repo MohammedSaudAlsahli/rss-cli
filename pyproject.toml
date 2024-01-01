@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "rss-cli"
+name = "rss-project"
 version = "0.1.0"
 description = ""
 authors = ["Mohammed Alsahli <mohammed.saud.alsahli@gmail.com>"]
@@ -7,20 +7,16 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.12"
-requests = "^2.31.0"
-bs4 = "^0.0.1"
-feedparser = "^6.0.10"
-rich = "^13.7.0"
-appdirs = "^1.4.4"
 textual = "^0.46.0"
+requests = "^2.31.0"
+rich = "^13.7.0"
+feedparser = "^6.0.11"
+beautifulsoup4 = "^4.12.2"
+xdg-base-dirs = "^6.0.1"
+pytz = "^2023.3.post1"
+humanize = "^4.9.0"
 
-
-[tool.poetry.group.dev.dependencies]
-textual-dev = "^1.2.1"
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
-
-[tool.poetry.scripts]
-rss = 'rss_cli.__init__:main'

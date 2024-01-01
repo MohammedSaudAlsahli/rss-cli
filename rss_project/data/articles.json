@@ -1,0 +1,308 @@
+[
+  {
+    "id": "5497a41fc4204cb2a26d5189b64c3c6d",
+    "provider": "NYT > Top Stories",
+    "title": "Israel Plans to Withdraw Some Troops From Gaza",
+    "description": "Reservists from at least two brigades will be sent home this week, and another three brigades will return to Israel for training, the military said.",
+    "content": ["Israeli soldiers walk near the border with Israel on Sunday."],
+    "link": "https://www.nytimes.com/2024/01/01/world/middleeast/israel-withdraw-troops-gaza.html",
+    "pub_date": "Mon, 01 Jan 2024 15:05:30 +0000",
+    "author": "Aaron Boxerman",
+    "authors": "Aaron Boxerman",
+    "tags": "Israel-Gaza War (2023- ), Defense and Military Forces, Gaza Strip, Israel"
+  },
+  {
+    "id": "3e3070c2b6bf4c2ab0dc59b67324474f",
+    "provider": "NYT > Top Stories",
+    "title": "Half of Gazans Are at Risk of Starving, U.N. Warns",
+    "description": "More than 90 percent of Palestinians in the territory say they have regularly gone without food for a whole day, according to the United Nations.",
+    "content": [
+      "Palestinians crowded in to get a free meal in the city of Rafah in southern Gaza last month."
+    ],
+    "link": "https://www.nytimes.com/2024/01/01/world/middleeast/gaza-israel-hunger.html",
+    "pub_date": "Mon, 01 Jan 2024 05:01:22 +0000",
+    "author": "Liam Stack, Gaya Gupta and Abu Bakr Bashir",
+    "authors": "Liam Stack, Gaya Gupta and Abu Bakr Bashir",
+    "tags": "Israel-Gaza War (2023- ), Food, Palestinians, Refugees and Displaced Persons, Hamas, United Nations, World Food Program"
+  },
+  {
+    "id": "0cba43962a604188bdd1da3d7c81df9c",
+    "provider": "NYT > Top Stories",
+    "title": "U.S.-Israel Relationship Shows Signs of Strain Amid War Against Hamas",
+    "description": "No other episode in the past half-century has tested the relationship between the United States and Israel in such an intense and consequential way as the Israel-Hamas war of 2023.",
+    "content": [
+      "President Biden has pressed Prime Minister Benjamin Netanyahu to scale back the war to a surgical operation relying more on special forces raids than wide-scale bombing."
+    ],
+    "link": "https://www.nytimes.com/2023/12/31/us/politics/us-israel-hamas-war.html",
+    "pub_date": "Sun, 31 Dec 2023 20:57:55 +0000",
+    "author": "Peter Baker, Edward Wong, Julian E. Barnes and Isabel Kershner",
+    "authors": "Peter Baker, Edward Wong, Julian E. Barnes and Isabel Kershner",
+    "tags": "Israel-Gaza War (2023- ), Civilian Casualties, United States International Relations, Palestinians, United States Politics and Government, Central Intelligence Agency, Defense Department, Hamas, Palestinian Authority, State Department, Biden, Joseph R Jr, Netanyahu, Benjamin, Gaza Strip, Israel"
+  },
+  {
+    "id": "8b227568c88740d397b32e5f15a28fce",
+    "provider": "NYT > Top Stories",
+    "title": "New State Laws Will Affect Americans Starting Jan. 1, 2024",
+    "description": "Many state laws take effect on the first day of 2024, including new rules on gun safety, a ban on diversity programs and a curb on telemarketing calls.",
+    "content": [
+      "Gov. Tim Walz of Minnesota holds up a just-signed gun control bill in May at the Minnesota State Capitol. The new law includes universal background checks and a red flag-style provision."
+    ],
+    "link": "https://www.nytimes.com/2024/01/01/us/new-state-laws-2024.html",
+    "pub_date": "Mon, 01 Jan 2024 08:00:30 +0000",
+    "author": "Adeel Hassan",
+    "authors": "Adeel Hassan",
+    "tags": "State Legislatures, Law and Legislation, Firearms, Consumer Protection, Medicine and Health, Transgender, Abortion, Labor and Jobs, Minimum Wage, Wages and Salaries, Marijuana, Unemployment, Roads and Traffic, Pregnancy and Childbirth, Prisons and Prisoners, Mental Health and Disorders, Book Bans, Education, Online Dating, Gender"
+  },
+  {
+    "id": "cbd04353adaf48b3a1f462a7df98d124",
+    "provider": "NYT > Top Stories",
+    "title": "It\u2019s 2024. Here Are the New Laws That New Yorkers Should Know About.",
+    "description": "Legislation touching on nearly every aspect of life in the state, including wages, health care and education, is going into effect in the coming months.",
+    "content": [
+      "Last year, Gov. Kathy Hochul signed bills that will require Medicaid to cover doula services and prohibit discrimination against L.G.B.T.Q. residents of nursing homes."
+    ],
+    "link": "https://www.nytimes.com/2024/01/01/nyregion/new-york-state-laws.html",
+    "pub_date": "Mon, 01 Jan 2024 08:00:14 +0000",
+    "author": "Erin Nolan",
+    "authors": "Erin Nolan",
+    "tags": "Law and Legislation, New Year, Minimum Wage, Voting Rights, Registration and Requirements, Menstruation, Politics and Government, Elderly, Prisons and Prisoners, Midwives and Doulas, Nursing Homes, Hochul, Kathleen C, New York State"
+  },
+  {
+    "id": "ef5919c8a3c24edb8882ecdaf2b2516d",
+    "provider": "NYT > Top Stories",
+    "title": "Appeals Court Allows California Ban on Guns in Most Public Places to Take Effect",
+    "description": "A federal appeals court halted a lower court\u2019s block on the law, which prohibits firearms in certain places such as playgrounds and libraries, allowing it to take effect on Monday.",
+    "content": [
+      "Gov. Gavin Newsom of California signed a series of gun safety measures, including Senate Bill 2, into law in September."
+    ],
+    "link": "https://www.nytimes.com/2023/12/31/us/california-gun-ban-law.html",
+    "pub_date": "Mon, 01 Jan 2024 02:05:39 +0000",
+    "author": "Colbi Edmonds",
+    "authors": "Colbi Edmonds",
+    "tags": "Firearms, California, Appeals Courts (US)"
+  },
+  {
+    "id": "a038a4aa3e7d4af1817f185a053b49cd",
+    "provider": "NYT > Top Stories",
+    "title": "These Classic Characters Are Losing Copyright Protection. They May Never Be the Same.",
+    "description": "What could happen to the original version of Mickey Mouse and others when they enter the public domain on Jan. 1? Hint: think Winnie the Pooh wielding a sledgehammer.",
+    "content": [
+      "The \u201cSteamboat Willie\u201d version of Mickey Mouse enters the public domain on Jan. 1."
+    ],
+    "link": "https://www.nytimes.com/2024/01/01/arts/public-domain-mickey-mouse.html",
+    "pub_date": "Mon, 01 Jan 2024 10:45:09 +0000",
+    "author": "Sopan Deb",
+    "authors": "Sopan Deb",
+    "tags": "Books and Literature, Copyrights and Copyright Violations, Winnie-the-Pooh (Fictional Character), Writing and Writers, Mickey Mouse (Fictional Character)"
+  },
+  {
+    "id": "2dc5d225c5424f8290d3232bb65b9d34",
+    "provider": "NYT > Top Stories",
+    "title": "Trump Team, Burned in 2016, Looks to Close Out Iowa",
+    "description": "The former president is leading by impressive margins in the state, but his campaign wants to make sure his supporters turn out.",
+    "content": [
+      "A rally for former President Donald J. Trump last month in Cedar Rapids, Iowa. \u201cThe poll numbers are scary, because we\u2019re leading by so much,\u201d Mr. Trump has said. \u201cThe key is you have to get out and vote.\u201d"
+    ],
+    "link": "https://www.nytimes.com/2024/01/01/us/politics/trump-iowa-caucuses.html",
+    "pub_date": "Mon, 01 Jan 2024 10:02:09 +0000",
+    "author": "Michael Gold and Kellen Browning",
+    "authors": "Michael Gold and Kellen Browning",
+    "tags": "Presidential Election of 2024, Primaries and Caucuses, Trump, Donald J, Iowa, Republican Party"
+  },
+  {
+    "id": "5ac256ce71264f1d9501749f07d967d0",
+    "provider": "NYT > Top Stories",
+    "title": "Sununu Says Christie Should Drop Out Ahead of New Hampshire Primary",
+    "description": "Mr. Sununu, the state\u2019s governor, expressed concern that Mr. Christie would pull support from his preferred candidate, Nikki Haley.",
+    "content": [
+      "Gov. Chris Sununu, Republican of New Hampshire, urged Chris Christie to drop out of the race for the party\u2019s presidential nomination."
+    ],
+    "link": "https://www.nytimes.com/2023/12/31/us/politics/sununu-says-christie-should-drop-out-ahead-of-new-hampshire-primary.html",
+    "pub_date": "Sun, 31 Dec 2023 22:01:28 +0000",
+    "author": "Anjali Huynh",
+    "authors": "Anjali Huynh",
+    "tags": "Christie, Christopher J, Haley, Nikki R, New Hampshire, Presidential Election of 2024, Republican Party"
+  },
+  {
+    "id": "fd4fd8f301bf49798e937d12128473c3",
+    "provider": "NYT > Top Stories",
+    "title": "They Said \u2018I Do\u2019 in a Moscow Prison",
+    "description": "She\u2019s 18. He\u2019s 23. He sent her a one-sentence letter through his prison\u2019s electronic mail system: \u201cWill you marry me?\u201d They wed in a small room in a Moscow jail.",
+    "content": [
+      "Yegor Shtovba, right at rear, and a fellow defendant, Artyom Kamardin, at a Moscow court in December, with guards in the foreground."
+    ],
+    "link": "https://www.nytimes.com/2024/01/01/world/europe/russia-prison-wedding-repression.html",
+    "pub_date": "Mon, 01 Jan 2024 14:49:11 +0000",
+    "author": "Valerie Hopkins",
+    "authors": "Valerie Hopkins",
+    "tags": "Weddings and Engagements, Prisons and Prisoners, Human Rights and Human Rights Violations, Freedom of Speech and Expression, Political Prisoners, Russian Invasion of Ukraine (2022)"
+  },
+  {
+    "id": "1c7db44c29404e0194f626f87efba861",
+    "provider": "NYT > Top Stories",
+    "title": "Trump\u2019s Most Ambitious Argument in His Bid for \u2018Absolute Immunity\u2019",
+    "description": "The former president says his acquittal by the Senate in his second impeachment trial, for inciting insurrection, bars any prosecution on similar grounds.",
+    "content": [
+      "In his appellate brief, former President Donald J. Trump said there was one constitutional provision that figured in the analysis, though his argument is a legal long shot."
+    ],
+    "link": "https://www.nytimes.com/2024/01/01/us/trump-immunity-impeachment.html",
+    "pub_date": "Mon, 01 Jan 2024 10:02:12 +0000",
+    "author": "Adam Liptak",
+    "authors": "Adam Liptak",
+    "tags": "Immunity from Prosecution, Federal Criminal Case Against Trump (2020 Election Case), Impeachment, United States Politics and Government, Presidential Election of 2020, Chutkan, Tanya S, Trump, Donald J, Smith, Jack (Attorney)"
+  },
+  {
+    "id": "ae670bee786c4793a43f146550b8efb2",
+    "provider": "NYT > Top Stories",
+    "title": "He Was One of the Central Park Five. Now He\u2019s Councilman Yusef Salaam.",
+    "description": "Mr. Salaam will take office 34 years after a wrongful prosecution for rape led to his spending nearly seven years in prison.",
+    "content": [
+      "Yusef Salaam, one of the Central Park Five, takes office on New Year\u2019s Day."
+    ],
+    "link": "https://www.nytimes.com/2023/12/31/nyregion/yusef-salaam-central-park-five-city-council.html",
+    "pub_date": "Mon, 01 Jan 2024 03:04:24 +0000",
+    "author": "Katherine Rosman",
+    "authors": "Katherine Rosman",
+    "tags": "Salaam, Yusef, False Arrests, Convictions and Imprisonments, Central Park Jogger Case (1989), City Councils, City Council (NYC), Burns, Ken, DuVernay, Ava, Reyes, Matias, Santana, Raymond, Richardson, Kevin, McCray, Antron, When They See Us (TV Program)"
+  },
+  {
+    "id": "6a44c71601ea48f5a25dc06da02de876",
+    "provider": "NYT > Top Stories",
+    "title": "Chill in the Housing Market Seeps Into Other Industries",
+    "description": "The slowdown in the residential real estate market, a crucial cog in the American economy, is threatening sectors like home improvement and storage.",
+    "content": [
+      "Sales of existing homes, which make up the majority of the housing stock in the United States, were down roughly 7 percent in November from a year earlier."
+    ],
+    "link": "https://www.nytimes.com/2024/01/01/business/housing-market-services-retailers.html",
+    "pub_date": "Mon, 01 Jan 2024 10:00:39 +0000",
+    "author": "Martha C. White",
+    "authors": "Martha C. White",
+    "tags": "Real Estate and Housing (Residential), Interest Rates, Real Estate Brokers, Storage, Home Repairs and Improvements, Shopping and Retail, Real Estate (Commercial)"
+  },
+  {
+    "id": "70757b2a07ab49e0a841dd1c71d07b3d",
+    "provider": "NYT > Top Stories",
+    "title": "Is the American Economy on the Mend?",
+    "description": "And will voters accept the good news?",
+    "content": [],
+    "link": "https://www.nytimes.com/2024/01/01/opinion/economy-crime-presidential-election.html",
+    "pub_date": "Mon, 01 Jan 2024 14:00:14 +0000",
+    "author": "Paul Krugman",
+    "authors": "Paul Krugman",
+    "tags": "Coronavirus (2019-nCoV), United States Economy, Inflation (Economics), Labor and Jobs, Polls and Public Opinion, Presidential Election of 2024"
+  },
+  {
+    "id": "48c829696b9444a99b4970b28146f418",
+    "provider": "NYT > Top Stories",
+    "title": "Trump Cacophony Hits Different This Time",
+    "description": "Even if he never wins a general election again, he retains his hold. The endurance of that power is incredible.",
+    "content": [],
+    "link": "https://www.nytimes.com/2024/01/01/opinion/trump-reelection-nominee.html",
+    "pub_date": "Mon, 01 Jan 2024 14:00:15 +0000",
+    "author": "Katherine Miller",
+    "authors": "Katherine Miller",
+    "tags": "Trump, Donald J, Presidential Election of 2024, Social Media, Polls and Public Opinion, Presidential Election of 2016, Biden, Joseph R Jr, TikTok (ByteDance), Facebook Inc, New York State Criminal Case Against Trump (71543-23)"
+  },
+  {
+    "id": "6b79baafd45c46c68b0672c6cbb909e3",
+    "provider": "NYT > Top Stories",
+    "title": "Greg Abbott\u2019s Ridiculously Unconstitutional Immigration Fight",
+    "description": "By taking over the federal role in immigration enforcement, Governor Abbott of Texas is welcoming a legal fight with the Biden administration.",
+    "content": [],
+    "link": "https://www.nytimes.com/2024/01/01/opinion/editorials/greg-abbott-immigration.html",
+    "pub_date": "Mon, 01 Jan 2024 14:00:06 +0000",
+    "author": "David Firestone",
+    "authors": "David Firestone",
+    "tags": "Illegal Immigration, Suits and Litigation (Civil), Conservatism (US Politics), States (US), Immigration and Emigration, Federal-State Relations (US), Arizona Immigration Law (SB 1070), Courts and the Judiciary, Border Patrol (US), Justice Department, Supreme Court (US), Abbott, Gregory W (1957- ), Scalia, Antonin, Arizona, El Paso (Tex), Mexico, Texas"
+  },
+  {
+    "id": "42c468b1436a4d15b4a1cab85c801623",
+    "provider": "NYT > Top Stories",
+    "title": "I\u2019m Ady Barkan\u2019s Widow. Everyone Should Have the Caregiving Options We Had.",
+    "description": "This year is a critical moment to make home care accessible to all Americans who need it.",
+    "content": [],
+    "link": "https://www.nytimes.com/2024/01/01/opinion/caregiving-als-ady-barkan.html",
+    "pub_date": "Mon, 01 Jan 2024 14:00:02 +0000",
+    "author": "Rachael Scarborough King",
+    "authors": "Rachael Scarborough King",
+    "tags": "Amyotrophic Lateral Sclerosis, Home Health Care, Health Insurance and Managed Care, Medicare, Medicaid, Families and Family Life, Law and Legislation, Elderly, Paralysis, Barkan, Ady, United States"
+  },
+  {
+    "id": "3b894299363f4e479a80503734279c09",
+    "provider": "NYT > Top Stories",
+    "title": "A New Year\u2019s Energy Boost",
+    "description": "This year, we\u2019re going to feel less tired.",
+    "content": [],
+    "link": "https://www.nytimes.com/2024/01/01/briefing/new-years-energy-challege.html",
+    "pub_date": "Mon, 01 Jan 2024 10:59:12 +0000",
+    "author": "Jancee Dunn",
+    "authors": "Jancee Dunn",
+    "tags": "New Year, Sleep"
+  },
+  {
+    "id": "27910644812c403985c8b63110c61383",
+    "provider": "NYT > Top Stories",
+    "title": "Can New Haven\u2019s Legendary Pizza Joints Play on the National Stage?",
+    "description": "The city has long been known as a pizza town. Now other places seem to be trying to cash in on the hype.",
+    "content": ["The mozzarella pie from Modern Apizza in New Haven, Conn."],
+    "link": "https://www.nytimes.com/2024/01/01/nyregion/new-haven-pizza.html",
+    "pub_date": "Mon, 01 Jan 2024 08:00:34 +0000",
+    "author": "Amelia Nierenberg and Joe Buglewicz",
+    "authors": "Amelia Nierenberg and Joe Buglewicz",
+    "tags": "Pizza, Family Business, New Haven (Conn)"
+  },
+  {
+    "id": "c80e414b68954521aebc392a695c945e",
+    "provider": "NYT > Top Stories",
+    "title": "Asian American Officials Cite Unfair Scrutiny and Lost Jobs in China Spy Tensions",
+    "description": "National security employees with ties to Asia say U.S. counterintelligence officers wrongly regard them as potential spies and ban them from jobs.",
+    "content": [
+      "\u201cI know dozens of diplomats who have lost out on getting assignments to China, Hong Kong and Vietnam,\u201d said Yuki Kondo-Shah, a diplomat in London who successfully fought an assignment restriction placed on her for Japan."
+    ],
+    "link": "https://www.nytimes.com/2023/12/31/us/politics/china-spy-asian-americans.html",
+    "pub_date": "Sun, 31 Dec 2023 22:02:04 +0000",
+    "author": "Edward Wong and Amy Qin",
+    "authors": "Edward Wong and Amy Qin",
+    "tags": "Asian-Americans, Espionage and Intelligence Services, Chinese-Americans, United States International Relations, Discrimination, Diplomatic Service, Embassies and Consulates, Commerce Department, Federal Bureau of Investigation, Foreign Service (US), State Department, Blinken, Antony J, Kim, Andy (1982- ), China"
+  },
+  {
+    "id": "2b783f1f7f4a4f8f8609377d8f39f1cc",
+    "provider": "NYT > Top Stories",
+    "title": "How to Start the New Year? Keep the Sea Goddess Happy.",
+    "description": "Followers of Afro-Brazilian religions have been displaced by New Year\u2019s revelers. But they still find ways to make their offerings to the ocean.",
+    "content": [
+      "Carrying offerings to the sea on Friday in Rio de Janeiro as part of an annual rite by devotees of Afro-Brazilian religions."
+    ],
+    "link": "https://www.nytimes.com/2024/01/01/world/americas/brazil-umbanda-religion-new-years.html",
+    "pub_date": "Mon, 01 Jan 2024 05:01:27 +0000",
+    "author": "Jack Nicas and Dado Galdieri",
+    "authors": "Jack Nicas and Dado Galdieri",
+    "tags": "Religion and Belief, New Year, Beaches, Brazil, Copacabana (Rio de Janeiro, Brazil), Rio de Janeiro (Brazil), vis-photo"
+  },
+  {
+    "id": "c9e4f1af9f054e7e8d7d61ccfebc45fe",
+    "provider": "NYT > Top Stories",
+    "title": "Chief Justice Roberts Sees Promise and Danger of A.I. in the Courts",
+    "description": "In his year-end report, Chief Justice John G. Roberts Jr. focused on the new technology while steering clear of Supreme Court ethics and Donald J. Trump\u2019s criminal cases.",
+    "content": [
+      "Chief Justice John G. Roberts Jr. issued his year-end report on the state of the federal judiciary on Sunday."
+    ],
+    "link": "https://www.nytimes.com/2023/12/31/us/john-roberts-supreme-court.html",
+    "pub_date": "Mon, 01 Jan 2024 02:05:11 +0000",
+    "author": "Adam Liptak",
+    "authors": "Adam Liptak",
+    "tags": "Artificial Intelligence, Courts and the Judiciary, Ethics and Official Misconduct, Supreme Court (US), Roberts, John G Jr, Cohen, Michael D (1966- ), Trump, Donald J"
+  },
+  {
+    "id": "e80775eca3744238bc311b94227f0b9a",
+    "provider": "NYT > Top Stories",
+    "title": "18 New Books to Read in January",
+    "description": "A look at the Trump-DeSantis rivalry, a witty tribute to \u201cMurder on the Orient Express,\u201d a memoir of open marriage and an epic Swedish novel in verse, among others.",
+    "content": [],
+    "link": "https://www.nytimes.com/2023/12/29/books/new-books-january.html",
+    "pub_date": "Fri, 29 Dec 2023 10:01:35 +0000",
+    "author": "The New York Times Books Staff",
+    "authors": "The New York Times Books Staff",
+    "tags": "Books and Literature, Blackburn, Venita, Burns, Amy Jo (1981- ), Enrigue, Alvaro (1969- ), Flock, Elizabeth, Hallett, Janice, Mercury (Book), Chan, Vanessa, Aednan (Book), Axelsson, Linnea, The Mysterious Case of the Alperton Angels (Book), You Dreamed of Empires (Book), Winter, Molly Roden, More: A Memoir of Open Marriage (Book), Cold Crematorium (Book), Debreczeni, Jozsef, Hylton, Antonia, Madness: Race and Insanity in a Jim Crow Asylum (Book), Martyr! (Book), Akbar, Kaveh, The Rebels Clinic: The Revolutionary Lives of Frantz Fanon (Book), Shatz, Adam, Stevenson, Benjamin, Everyone on This Train Is a Suspect (Book), DEAR SISTER (BOOK), Horton, Michelle, Shuster, Simon, The Last Fire Season (Book), Martin, Manjula, The Showman (Book), Matar, Hisham, My Friends (Book), Dixon, Matt, Swamp Monsters: Trump vs. DeSantis  the Greatest Show on Earth (or at Least in Florida) (Book)"
+  }
+]
