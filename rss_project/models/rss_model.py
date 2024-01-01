@@ -10,6 +10,8 @@ import feedparser
 from pytz import UTC
 from json import dump
 
+from rss_project.data.rss import rss_file
+
 
 def parse_time(text: str) -> datetime:
     return datetime.fromisoformat(text.removesuffix("Z") + "+00:00")
@@ -72,6 +74,7 @@ class RssCollection:
 
     # Todo: in the future I need to refactor this for youtube and twitter feature
     def _rss_parser(self) -> list[RssData]:
+        path = rss_file()
         articles: list[RssData] = []
         for url in self._rss_feeds():
             feed = feedparser.parse(url)
@@ -79,9 +82,8 @@ class RssCollection:
                 for entry in feed.entries:
                     article = RssData.from_entry(entry, feed.channel.title)
                     articles.append(article)
-        with open("articles.json", "w") as outfile:
+        with open(path, "w") as outfile:
             dump(articles, outfile)
-        #! maybe error here
         return articles
 
     _LIMIT: Final[timedelta] = timedelta(minutes=15)

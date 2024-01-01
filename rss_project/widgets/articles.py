@@ -2,6 +2,7 @@ from collections import Counter
 from dataclasses import dataclass
 from datetime import datetime
 from json import loads, dumps, JSONEncoder
+from pathlib import Path
 from typing import Any, Callable, cast
 from webbrowser import open as open_url
 from typing_extensions import Self
@@ -21,6 +22,8 @@ from rich.table import Table
 from rss_project.data.rss import rss_file
 from rss_project.models.rss_model import RssData, RssCollection
 from rss_project.widgets.extended_option_list import OptionListEx
+
+#! the issue now is why articles class not showing articles!!!
 
 
 class Article(Option):
@@ -42,7 +45,7 @@ class Article(Option):
         details.add_column(ratio=1)
         details.add_column()
         details.add_row(
-            f"[dim][i]{naturaltime(self._data.time)}[/][/]",
+            f"[dim][i]{naturaltime(self._data.pub_date)}[/][/]",
             f"[dim]{', '.join(sorted(self.tags, key = str.casefold))}[/]",
         )
         return Group(title, details, Rule(style="dim"))
@@ -62,10 +65,9 @@ class Article(Option):
         )
 
     @classmethod
-    def from_json(cls, data: dict[str, Any]) -> "Article":
-        if "time" in data:
-            data["time"] = datetime.fromisoformat(data["time"])
-        return cls(RssData(**data))
+    def from_json(cls, data: list[dict[str, Any]]) -> "Article":
+        for article in data:
+            return cls(RssData(**article))
 
     @property
     def data(self) -> RssData:
@@ -163,19 +165,23 @@ class Articles(OptionListEx):
     @property
     def as_json(self) -> dict[str, Any]:
         return {
-            "last_downloaded": None
-            if self.last_downloaded is None
-            else self.last_downloaded.isoformat(),
+            # "last_downloaded": None
+            # if self.last_downloaded is None
+            # else self.last_downloaded.isoformat(),
             "articles": [article.data.as_json for article in self.articles],
         }
 
     def load_json(self, data: dict[str, Any]) -> None:
-        self.last_downloaded = datetime.fromisoformat(data["last_downloaded"])
+        # self.last_downloaded = datetime.fromisoformat(data["last_downloaded"])
         self.articles = Article.from_json(data)
 
+    #! this was the error
     def load(self) -> bool:
-        if rss_file().exists():
-            self.load_json(loads(rss_file().read_text(encoding="utf-8")))
+        file_path = rss_file()  # Specify the file path
+        if Path(file_path).exists():  # Check if the file exists
+            with open(file_path, "r", encoding="utf-8") as file:
+                self.load_json(loads(file.read()))  # Load the JSON data
+
             return True
         return False
 
@@ -183,11 +189,11 @@ class Articles(OptionListEx):
         def default(self, o: object) -> Any:
             return datetime.isoformat(o) if isinstance(o, datetime) else o
 
-    def save(self) -> Self:
-        rss_file().write_text(
-            dumps(self.as_json, indent=4, cls=self._Encoder), encoding="utf-8"
-        )
-        return self
+    # def save(self) -> Self:
+    #     rss_file().write_text(
+    #         dumps(self.as_json, indent=4, cls=self._Encoder), encoding="utf-8"
+    #     )
+    #     return self
 
     async def download_all(self, collection: RssCollection) -> Self:
         self.articles = [

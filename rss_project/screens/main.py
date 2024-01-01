@@ -19,6 +19,7 @@ from rss_project.messages import (
     ShowAlsoTaggedWith,
     ShowTaggedWith,
 )
+from rss_project.data.rss import rss_file
 
 
 class Main(Screen[None]):
@@ -116,7 +117,7 @@ class Main(Screen[None]):
         self.set_class(not configuration.details_visible, "details-hidden")
         self.sub_title = "Loading cached articles..."
         self.query_one(Articles).loading = True
-        self.query_one(TagsMenu).sort_by_count = configuration.sort_tags_by_count
+        # self.query_one(TagsMenu).sort_by_count = configuration.sort_tags_by_count
         self.load_articles()
 
     @work(thread=True)

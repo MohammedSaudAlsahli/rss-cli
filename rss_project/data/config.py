@@ -9,7 +9,7 @@ from pathlib import Path
 
 ##############################################################################
 # Local imports.
-from .locations import config_dir
+from rss_project.data.locations import config_dir
 
 
 ##############################################################################

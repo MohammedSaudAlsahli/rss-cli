@@ -1,7 +1,6 @@
-
 from pathlib import Path
 
-from .locations import data_dir
+from rss_project.data.locations import data_dir
 
 
 def rss_file() -> Path:
@@ -11,6 +10,3 @@ def rss_file() -> Path:
         The path to the rss file.
     """
     return data_dir() / "rss.json"
-
-
-
