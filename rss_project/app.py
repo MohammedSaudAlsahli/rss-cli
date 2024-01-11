@@ -1,33 +1,50 @@
-import os
+from typing import Type
+from textual._path import CSSPathType
+from textual.driver import Driver
+from textual.widgets import OptionList
+from textual.widgets.option_list import Option, OptionDoesNotExist
+from textual.app import App, CSSPathType, ComposeResult
+from rich.table import Table
+from rich.console import Group
+from datetime import datetime
 
-from textual.app import App
-from textual.binding import Binding
-
-from rss_project.screens import Main
-from rss_project.data import load_configuration, save_configuration
+from rss_project.models.rss_model import RssCollection, RssData
 
 
-class RssCli(App):
-    BINDINGS = [
-        Binding("ctrl+backslash", "gndn"),
-        Binding("ctrl+p", "command_palette", priority=True),
-    ]
-
-    def __init__(self) -> None:
-        """Initialise the application."""
+class Main(App):
+    def __init__(self):
         super().__init__()
-        self.dark = load_configuration().dark_mode
+        self._load = self.load_feeds()
+        self._rss_collection = RssCollection()._rss_parser()
 
-    def on_mount(self) -> None:
-        self.push_screen(Main())
+    def compose(self) -> ComposeResult:
+        feeds = self.feeds()
+        yield from (OptionList(feed) for feed in feeds)
 
-    def _watch_dark(self) -> None:
-        """Save the light/dark mode configuration choice."""
-        configuration = load_configuration()
-        configuration.dark_mode = self.dark
-        save_configuration(configuration)
+    def load_feeds(self) -> list[RssData]:
+        RssCollection()._rss_parser()
+        all_feeds = RssCollection()._read_rss()
+        return all_feeds
+
+    def feeds(self) -> list:
+        def sort_by_pub_date(feed: RssData):
+            return datetime.strptime(feed.pub_date, "%a, %d %b %Y %H:%M:%S %z")
+
+        feeds = sorted(self._load, key=sort_by_pub_date)
+        all_feeds: list[Group] = []
+        for feed in feeds:
+            title = Table.grid(expand=True)
+            title.add_column(ratio=1)
+            title.add_column(justify="right")
+            title.add_row(feed.title)
+
+            details = Table.grid(expand=True)
+            details.add_column(ratio=1)
+            details.add_row(f"\n[dim]{feed.pub_date}[/]\n[dim]{feed.tags}[/]")
+            Option(all_feeds.append(Group(title, details)))
+
+        return all_feeds
 
 
 if __name__ == "__main__":
-    os.chdir(os.path.dirname(__file__))
-    RssCli().run()
+    Main().run()

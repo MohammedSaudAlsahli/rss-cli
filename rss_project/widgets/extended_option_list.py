@@ -1,9 +1,12 @@
 from typing_extensions import Self
 
+##############################################################################
+# Textual imports.
 from textual.binding import Binding
 from textual.widgets import OptionList
 
 
+##############################################################################
 class OptionListEx(OptionList):
     """The Textual `OptionList` with more navigation keys."""
 
@@ -17,3 +20,6 @@ class OptionListEx(OptionList):
         super().clear_options()
         self._clear_content_tracking()
         return self
+
+
+### extended_option_list.py ends here

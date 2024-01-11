@@ -10,3 +10,7 @@ def rss_file() -> Path:
         The path to the rss file.
     """
     return data_dir() / "rss.json"
+
+
+if __name__ == "__main__":
+    print(rss_file())
