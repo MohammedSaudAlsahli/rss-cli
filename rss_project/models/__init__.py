@@ -1,3 +1,6 @@
-from .rss_model import RssCollection, RssData
+from .rss_model import RssData, RssCollection
 
-__all__ = ["RssCollection", "RssData"]
+__all__ = [
+    "RssData",
+    "RssCollection",
+]

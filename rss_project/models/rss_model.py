@@ -3,7 +3,7 @@ from uuid import uuid4
 import feedparser
 from json import dump, load
 
-from rss_project.data.rss import rss_file
+from data import rss_file, RSS_FEEDS
 
 
 @dataclass
@@ -37,20 +37,12 @@ class RssData:
 
 
 class RssCollection:
-    # Todo: if everything was right I will change this to a list of rss feeds that user add
-    def _rss_feeds(self) -> list[str]:
-        return [
-            "https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml",
-            "https://podcastfeeds.nbcnews.com/RPWEjhKq",
-            "https://feeds.megaphone.fm/newheights",
-        ]
-
     # Todo: in the future I need to refactor this for youtube and twitter feature
 
     def _rss_parser(self) -> None:
         path = rss_file()
         articles: list[RssData] = []
-        for url in self._rss_feeds():
+        for url in RSS_FEEDS:
             feed = feedparser.parse(url)
             if feed.status == 200:
                 for entry in feed.entries:

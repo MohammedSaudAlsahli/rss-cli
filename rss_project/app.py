@@ -1,12 +1,13 @@
 from rich.table import Table
 from rich.console import Console
-from rss_project.models.rss_model import RssCollection, RssData
+from models import RssCollection, RssData
 from rich.prompt import Prompt
 from webbrowser import open as open_url
 from rich.panel import Panel
 from rich import box
 
 
+# todo: refactor this
 class RssCli:
     def __init__(self) -> None:
         self._load = self._load_feeds()
@@ -49,6 +50,10 @@ class RssCli:
             justify="center",
             style="grey78",
         )
+        if not self._load:
+            Console().print("[i]No data yet...[/i]")
+            exit()
+
         for index, article in enumerate(self._load):
             table.add_row(
                 str(index + 1),
@@ -60,7 +65,7 @@ class RssCli:
 
     def _user_input(self):
         while True:
-            user_input = Prompt.ask('\nenter the id of feed or "[b][red]q[/]" to quit')
+            user_input = Prompt.ask('\nenter the id of feed or "[b][red]Q[/]" to quit')
             if user_input.lower() == "q":
                 return "q"
 
@@ -70,15 +75,15 @@ class RssCli:
                     return user_input
                 else:
                     Console().print(
-                        "\n[b][red]Invalid feed ID. Please enter a valid ID.[/]"
+                        "\n[b][red]Invalid feed ID. Please enter a valid ID[/]"
                     )
 
             except ValueError:
                 Console().print(
-                    '[b][red]Invalid input. Please enter a valid feed ID or "[b][red]q[/]" to quit.[/]'
+                    '[b][red]Invalid input. Please enter a valid feed ID or  "Q" to quit[/]'
                 )
 
-    def clean_view(self, selected_article: RssData):
+    def _clean_view(self, selected_article: RssData):
         clean_view_panel = Panel(
             f"\n{selected_article.description}\n"
             f"\n[b]By:[/] {selected_article.author}\n"
@@ -92,7 +97,7 @@ class RssCli:
         Console().print(clean_view_panel, justify="center")
         while True:
             user_input = Prompt.ask(
-                '\nPress "v" to visit the article or "[b][red]e[/]" to return to the main view.'
+                '\nPress "[b][green]V[/]" to visit the article or "[b][green]E[/]" to return to the main view'
             )
             match user_input.lower():
                 case "e":
@@ -102,13 +107,13 @@ class RssCli:
                     return
                 case _:
                     Console().print(
-                        '[b][red]Invalid input. Please press "v" to visit the article or "[b][red]e[/]" to exit.[/]'
+                        '[b][red]Invalid input. Please press "[green]V[/green]" to visit the article or "[green]E[/green]" to exit[/]'
                     )
 
     def handle_articles(self, selected_id, data):
         selected_id = int(selected_id)
         selected_article: RssData = data[selected_id - 1]
-        self.clean_view(selected_article)
+        self._clean_view(selected_article)
 
     def _load_feeds(self) -> list[RssData]:
         RssCollection()._rss_parser()

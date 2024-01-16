@@ -1,5 +1,4 @@
 from pathlib import Path
-
 from rss_project.data.locations import data_dir
 
 

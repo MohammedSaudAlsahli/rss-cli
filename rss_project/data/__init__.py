@@ -1,8 +1,9 @@
-from .rss import rss_file
-
+# from .rss import rss_file
+from .config import RSS_FEEDS, HELP, rss_file, rss_list
 
 __all__ = [
     "rss_file",
-    "load_configuration",
-    "save_configuration",
+    "RSS_FEEDS",
+    "HELP",
+    "rss_list",
 ]
