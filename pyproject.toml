@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "rss-project"
-version = "0.1.0"
+version = "0.1.1"
 description = ""
 authors = ["Mohammed Alsahli <mohammed.saud.alsahli@gmail.com>"]
 readme = "README.md"
@@ -19,3 +19,7 @@ keyboard = "^0.13.5"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+rss-cli = "rss_project.__main__:main"
+rss = "rss_project.__main__:main"

@@ -1,14 +1,13 @@
 from dataclasses import dataclass
-from uuid import uuid4
-import feedparser
 from json import dump, load
 
-from rss_project.data import rss_file, RSS_FEEDS
+import feedparser
+
+from ..data import rss_file, RSS_FEEDS
 
 
 @dataclass
 class RssData:
-    id: str
     provider: str
     title: str
     description: str
@@ -21,7 +20,6 @@ class RssData:
     @classmethod
     def from_entry(cls, entry, provider):
         return cls(
-            id=uuid4().hex,
             provider=provider,
             title=entry.title,
             description=entry.description,
