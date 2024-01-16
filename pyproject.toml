@@ -1,7 +1,7 @@
 [tool.poetry]
-name = "rss-project"
+name = "rss-cli"
 version = "0.1.1"
-description = ""
+description = "A rss feed in the terminal."
 authors = ["Mohammed Alsahli <mohammed.saud.alsahli@gmail.com>"]
 readme = "README.md"
 
@@ -13,7 +13,6 @@ feedparser = "^6.0.11"
 beautifulsoup4 = "^4.12.2"
 xdg-base-dirs = "^6.0.1"
 importlib-metadata = "^7.0.1"
-keyboard = "^0.13.5"
 
 
 [build-system]
