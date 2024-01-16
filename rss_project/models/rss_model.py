@@ -3,7 +3,7 @@ from uuid import uuid4
 import feedparser
 from json import dump, load
 
-from data import rss_file, RSS_FEEDS
+from rss_project.data import rss_file, RSS_FEEDS
 
 
 @dataclass
@@ -48,6 +48,8 @@ class RssCollection:
                 for entry in feed.entries:
                     article = RssData.from_entry(entry, feed.channel.title)
                     articles.append(article)
+        articles.sort(key=lambda x: x.pub_date)
+
         with open(path, "w") as outfile:
             articles_dict_list = [article.__dict__ for article in articles]
             dump(articles_dict_list, outfile)
@@ -59,5 +61,4 @@ class RssCollection:
 
 
 if __name__ == "__main__":
-    f = RssCollection()._rss_parser()
-    print(f)
+    print(RSS_FEEDS)

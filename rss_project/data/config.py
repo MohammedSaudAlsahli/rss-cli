@@ -13,7 +13,9 @@ def add_link(link):
 
     if link not in open(rss_list_path).read():
         with open(rss_list_path, "a") as list_file:
-            list_file.write(f"{link}")
+            list_file.write(
+                f"{link}\n"
+            )  # Add '\n' to ensure each link is on a new line
         print(f"Link '{link}' added successfully.")
     else:
         print(f"Link '{link}' already exists in the list.")
@@ -33,6 +35,7 @@ def remove_link(link):
 
         with open(rss_list_path, "w") as list_file:
             list_file.write("\n".join(existing_links))
+            list_file.write("\n")  # Add an extra newline at the end for a cleaner file
 
         print(f"Link '{link}' removed successfully.")
     else:
@@ -41,9 +44,9 @@ def remove_link(link):
 
 def read_list_file():
     rss_list_path = rss_list()
-
     with open(rss_list_path, "r") as list_file:
-        return [line.strip() for line in list_file.readlines()]
+        lines = list_file.readlines()
+        return [line.strip() for line in lines]
 
 
 def rss_list():
@@ -58,3 +61,4 @@ RSS_FEEDS = [rss_link for rss_link in read_list_file()]
 
 if __name__ == "__main__":
     print(RSS_FEEDS)
+    print(rss_list())
