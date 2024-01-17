@@ -1,5 +1,6 @@
 <div align=center >
 <img src=readme/rss-cli_logo.png>
+</div>
 ### Features
 
 - [x] Support rss feeds
@@ -26,5 +27,3 @@ Or
 | `-a`, `--add`    | Add a link     |
 | `-r`, `--remove` | Remove a link  |
 | `-l`, `--list`   | Show all links |
-
-</div>
