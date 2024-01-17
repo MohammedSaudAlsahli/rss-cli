@@ -1,8 +1,7 @@
-from .config import RSS_FEEDS, HELP, rss_file, rss_list
+from .config import RSS_FEEDS, rss_file, rss_list
 
 __all__ = [
     "rss_file",
     "RSS_FEEDS",
-    "HELP",
     "rss_list",
 ]

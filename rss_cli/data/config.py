@@ -1,13 +1,7 @@
 from pathlib import Path
 
-from rss_cli.data.locations import data_dir
 import os
 from pathlib import Path
-
-HELP = """
-
-
-"""
 
 
 def add_link(link):
@@ -44,8 +38,8 @@ def read_list_file():
         return [line.strip() for line in lines]
 
 
-def rss_list():
-    file_path = data_dir() / "rss_list.txt"
+def rss_list() -> Path:
+    file_path = Path(os.getcwd()) / "rss_list.txt"
     if not file_path.exists():
         file_path.touch()
 
@@ -53,12 +47,11 @@ def rss_list():
 
 
 def rss_file() -> Path:
-    return data_dir() / "rss.json"
-
+    return Path(os.getcwd()) / "rss.json"
 
 
 RSS_FEEDS = [rss_link for rss_link in read_list_file()]
 
 if __name__ == "__main__":
-    dir_path = rss_file()
+    dir_path = os.getcwd()
     print(dir_path)
