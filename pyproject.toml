@@ -1,10 +1,15 @@
 [tool.poetry]
 name = "rss-cli"
-version = "0.1.2"
+version = "0.1.3.1"
 description = "A terminal rss feed."
 authors = ["Mohammed Alsahli <mohammed.saud.alsahli@gmail.com>"]
 readme = "README.md"
-
+keywords = [
+    "terminal",
+    "RSS",
+]
+license = "MIT"
+homepage = "https://github.com/MohammedSaudAlsahli/rss-cli"
 [tool.poetry.dependencies]
 python = "^3"
 requests = "^2.31.0"
