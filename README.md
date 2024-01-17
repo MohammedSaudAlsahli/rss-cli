@@ -18,6 +18,7 @@ Or
 
 - [ ] support twitter
 - [ ] support youtube
+- [ ] speed the process
 
 ### Options
 
