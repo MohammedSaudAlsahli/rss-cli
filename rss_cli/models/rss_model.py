@@ -43,7 +43,7 @@ class RssCollection:
         articles: list[RssData] = []
         for url in RSS_FEEDS:
             feed = feedparser.parse(url)
-            if feed.status == 200:
+            if "status" in feed and feed.status == 200:
                 for entry in feed.entries:
                     article = RssData.from_entry(entry, feed.channel.title)
                     articles.append(article)
@@ -61,14 +61,22 @@ class RssCollection:
 class LoadFeeds:
     def _load_feeds(self) -> list[RssData]:
         RssCollection()._rss_parser()
+        date_formats = ["%a, %d %b %Y %H:%M:%S %z", "%Y-%m-%dT%H:%M:%S%z"]
         all_feeds = RssCollection()._read_rss()
+
         sorted_feeds = sorted(
             all_feeds,
-            key=lambda sort: datetime.strptime(
-                sort.pub_date, "%a, %d %b %Y %H:%M:%S %z"
-            ),
+            key=lambda sort: self.parse_pub_date(sort.pub_date, date_formats),
         )
+
         return sorted_feeds
+
+    def parse_pub_date(self, pub_date, date_formats):
+        for date_format in date_formats:
+            try:
+                return datetime.strptime(pub_date, date_format)
+            except ValueError:
+                pass
 
 
 if __name__ == "__main__":
