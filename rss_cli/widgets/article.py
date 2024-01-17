@@ -1,6 +1,7 @@
-from rich.panel import Panel
-from .base_class import BaseClass
 from webbrowser import open as open_url
+from rich.panel import Panel
+
+from .base_class import BaseClass
 from ..models import RssData
 
 

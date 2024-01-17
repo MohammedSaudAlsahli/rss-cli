@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from datetime import datetime
 from json import dump, load
 
 import feedparser
@@ -47,7 +48,6 @@ class RssCollection:
                     article = RssData.from_entry(entry, feed.channel.title)
                     articles.append(article)
         articles.sort(key=lambda x: x.pub_date)
-
         with open(path, "w") as outfile:
             articles_dict_list = [article.__dict__ for article in articles]
             dump(articles_dict_list, outfile)
@@ -56,6 +56,19 @@ class RssCollection:
         path = rss_file()
         with open(path, "r") as infile:
             return [RssData(**article) for article in load(infile)]
+
+
+class LoadFeeds:
+    def _load_feeds(self) -> list[RssData]:
+        RssCollection()._rss_parser()
+        all_feeds = RssCollection()._read_rss()
+        sorted_feeds = sorted(
+            all_feeds,
+            key=lambda sort: datetime.strptime(
+                sort.pub_date, "%a, %d %b %Y %H:%M:%S %z"
+            ),
+        )
+        return sorted_feeds
 
 
 if __name__ == "__main__":
