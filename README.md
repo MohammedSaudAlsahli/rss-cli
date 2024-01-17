@@ -1,5 +1,6 @@
-![rss-cli logo](readme/rss-cli_logo.png)
-
+<div align=center >
+<img src=readme/rss-cli_logo.png>
+</div>
 ### Features
 
 - [x] Support rss feeds
