@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "rss-cli"
-version = "0.1.1"
+version = "0.1.2"
 description = "A terminal rss feed."
 authors = ["Mohammed Alsahli <mohammed.saud.alsahli@gmail.com>"]
 readme = "README.md"
