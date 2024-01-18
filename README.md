@@ -15,9 +15,10 @@ Simply run:
  `pip install git+https://github.com/MohammedSaudAlsahli/rss-cli`
 ### TODO:
 
-- [ ] support twitter
-- [ ] support youtube
-- [ ] speed the process
+- [ ] supporing arabic language 
+- [ ] supporting twitter
+- [ ] supporting youtube
+- [ ] speed up the process
 
 ### Options
 
