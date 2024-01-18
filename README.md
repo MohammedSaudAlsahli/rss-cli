@@ -10,10 +10,9 @@
 ### Install
 
 Simply run:
-`brew install rss-cli`
-Or
 `pip install rss-cli`
-
+ Or 
+ `pip install git+https://github.com/MohammedSaudAlsahli/rss-cli`
 ### TODO:
 
 - [ ] support twitter
