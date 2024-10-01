@@ -265,7 +265,7 @@ files = [
 
 [[package]]
 name = "urllib3"
-version = "2.1.0"
+version = "2.2.2"
 description = "HTTP library with thread-safe connection pooling, file post, and more."
 optional = false
 python-versions = ">=3.8"
