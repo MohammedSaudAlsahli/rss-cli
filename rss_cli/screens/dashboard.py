@@ -213,12 +213,29 @@ class DashboardScreen(Screen[None]):
             idx = int(option_id.split("-", 1)[1])
             if 0 <= idx < len(self._filtered_articles):
                 article = self._filtered_articles[idx]
+                if not article.is_read:
+                    mark_article_read(article.link)
+                    article.is_read = True
+                    self._populate_articles()
+                    self._populate_bookmarks()
+                    # Restore highlight after repopulation
+                    list_widget = self.query_one("#article-list", OptionList)
+                    if 0 <= idx < list_widget.option_count:
+                        list_widget.highlighted = idx
                 self._update_preview(article)
         elif option_id and option_id.startswith("bookmark-"):
             bookmarked = [a for a in self.all_articles if a.is_bookmarked]
             idx = int(option_id.split("-", 1)[1])
             if 0 <= idx < len(bookmarked):
                 article = bookmarked[idx]
+                if not article.is_read:
+                    mark_article_read(article.link)
+                    article.is_read = True
+                    self._populate_articles()
+                    self._populate_bookmarks()
+                    bm_widget = self.query_one("#bookmarks-list", OptionList)
+                    if 0 <= idx < bm_widget.option_count:
+                        bm_widget.highlighted = idx
                 self._update_preview(article)
 
     def action_read_article(self) -> None:
