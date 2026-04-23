@@ -92,7 +92,7 @@ class DashboardScreen(Screen[None]):
             title_text = title_text[:67] + "..."
         title_style = "dim" if article.is_read else "bold white"
         if article.is_bookmarked:
-            title_style += " underline"
+            title_style += " italic"
         cell = Text()
         cell.append(title_text, style=title_style)
         cell.append("\n")
@@ -106,7 +106,7 @@ class DashboardScreen(Screen[None]):
             title_text = title_text[:47] + "..."
         title_style = "dim" if article.is_read else "bold white"
         if article.is_bookmarked:
-            title_style += " underline"
+            title_style += " italic"
         cell = Text()
         cell.append(title_text, style=title_style)
         cell.append("\n")
