@@ -12,7 +12,7 @@ from textual.widgets.option_list import Option
 
 from rss_cli.models.feed import Article, Feed
 from rss_cli.services.cache import apply_all_state, mark_article_read, toggle_bookmark
-from rss_cli.services.config import remove_feed_url, save_feed_url
+from rss_cli.services.config import load_feed_urls, remove_feed_url, save_feed_url
 
 _SKIP_CONTENT = {"[comments]", "comments", ""}
 
@@ -296,22 +296,20 @@ class DashboardScreen(Screen[None]):
         self.app.push_screen(_InputScreen("Enter RSS feed URL:", _on_result))
 
     def action_delete_feed(self) -> None:
-        if not self.feeds:
+        """Show a list of all feeds so the user can select one to delete."""
+        feed_urls = load_feed_urls()
+        if not feed_urls:
             self.notify("No feeds to delete", severity="warning")
             return
-        list_widget = self.query_one("#article-list", OptionList)
-        highlighted = list_widget.highlighted
-        if highlighted is None or highlighted < 0 or highlighted >= len(
-            self._filtered_articles
-        ):
-            self.notify("Select an article to identify the feed", severity="warning")
-            return
-        article = self._filtered_articles[highlighted]
-        remove_feed_url(article.feed_url)
-        self.notify(f"Removed feed: {article.feed_title}", severity="information")
-        app = self.app
-        if hasattr(app, "action_refresh"):
-            app.run_worker(app.action_refresh())
+        # Build a map of feed titles from loaded feeds
+        feed_titles: dict[str, str] = {}
+        for feed in self.feeds:
+            feed_titles[feed.url] = feed.title or feed.url
+        # Fill in any URLs not in loaded feeds
+        for url in feed_urls:
+            if url not in feed_titles:
+                feed_titles[url] = url
+        self.app.push_screen(_FeedSelectScreen(feed_urls, feed_titles))
 
     def action_refresh(self) -> None:
         app = self.app
@@ -384,3 +382,68 @@ class _InputScreen(Screen[None]):
         self.app.pop_screen()
         if callable(self.callback):
             self.callback(None)
+
+
+class _FeedSelectScreen(Screen[str | None]):
+    """Screen to select a feed to delete."""
+
+    CSS = """
+    _FeedSelectScreen {
+        align: center middle;
+    }
+    #feed-select-dialog {
+        width: 60;
+        height: 20;
+        padding: 1 2;
+        background: $surface;
+        border: tall $primary;
+    }
+    #feed-select-title {
+        text-style: bold;
+        margin-bottom: 1;
+    }
+    #feed-list {
+        height: 1fr;
+    }
+    """
+
+    BINDINGS = [
+        Binding("escape", "cancel", "Cancel", show=True),
+    ]
+
+    def __init__(self, feed_urls: list[str], feed_titles: dict[str, str]) -> None:
+        super().__init__()
+        self.feed_urls = feed_urls
+        self.feed_titles = feed_titles
+
+    def compose(self) -> ComposeResult:
+        with Vertical(id="feed-select-dialog"):
+            yield Static("Select a feed to delete:", id="feed-select-title")
+            yield OptionList(id="feed-list")
+
+    def on_mount(self) -> None:
+        list_widget = self.query_one("#feed-list", OptionList)
+        for i, url in enumerate(self.feed_urls):
+            title = self.feed_titles.get(url, url)
+            prompt = Text()
+            prompt.append(title, style="bold")
+            prompt.append(f"\n{url}", style="dim italic")
+            list_widget.add_option(Option(prompt, id=f"feed-{i}"))
+
+    def on_option_list_option_selected(self, event: OptionList.OptionSelected) -> None:
+        option_id = event.option.id
+        if option_id and option_id.startswith("feed-"):
+            idx = int(option_id.split("-", 1)[1])
+            if 0 <= idx < len(self.feed_urls):
+                url = self.feed_urls[idx]
+                title = self.feed_titles.get(url, url)
+                remove_feed_url(url)
+                self.app.pop_screen()
+                self.app.notify(f"Removed feed: {title}", severity="information")
+                # Refresh the dashboard
+                app = self.app
+                if hasattr(app, "action_refresh"):
+                    app.run_worker(app.action_refresh())
+
+    def action_cancel(self) -> None:
+        self.app.pop_screen()
