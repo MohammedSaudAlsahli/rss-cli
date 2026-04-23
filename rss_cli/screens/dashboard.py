@@ -35,17 +35,6 @@ class DashboardScreen(Screen[None]):
     DashboardScreen {
         layout: vertical;
     }
-    #main-container {
-        layout: horizontal;
-        grid-size: 2;
-        grid-columns: 1fr 2fr;
-    }
-    #article-panel {
-        width: 100%;
-    }
-    #right-panel {
-        width: 100%;
-    }
     """
 
     def __init__(self) -> None:
