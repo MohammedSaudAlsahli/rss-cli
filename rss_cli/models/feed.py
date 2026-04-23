@@ -81,14 +81,6 @@ class Article:
         clean = self.description.replace("\n", " ").strip()
         return _truncate(clean, 120)
 
-    @property
-    def status_icon(self) -> str:
-        """Return a combined status icon: read/unread + bookmarked."""
-        parts: list[str] = []
-        parts.append("★" if self.is_bookmarked else "☆")
-        parts.append("○" if self.is_read else "●")
-        return " ".join(parts)
-
     @classmethod
     def from_feedparser_entry(cls, entry: object, feed_title: str, feed_url: str) -> Article:
         e = entry

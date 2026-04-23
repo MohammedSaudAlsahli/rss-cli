@@ -11,10 +11,10 @@ from textual.widgets import Footer, Header, Markdown, OptionList, Static, Tabbed
 from textual.widgets.option_list import Option
 
 from rss_cli.models.feed import Article, Feed
+from rss_cli.screens.dialogs import FeedSelectScreen, InputScreen
 from rss_cli.services.cache import apply_all_state, mark_article_read, toggle_bookmark
-from rss_cli.services.config import load_feed_urls, remove_feed_url, save_feed_url
-
-_SKIP_CONTENT = {"[comments]", "comments", ""}
+from rss_cli.services.config import load_feed_urls, save_feed_url
+from rss_cli.utils import SKIP_CONTENT, html_to_text
 
 
 class DashboardScreen(Screen[None]):
@@ -177,19 +177,18 @@ class DashboardScreen(Screen[None]):
         meta_widget.update(f" [dim]{'  ·  '.join(meta_parts)}[/]")
 
         content_parts: list[str] = []
-        from rss_cli.screens.reader import _html_to_text
 
         if article.content and len(article.content) > len(article.description):
-            cleaned = _html_to_text(article.content)
-            if cleaned.strip().lower() not in _SKIP_CONTENT:
+            cleaned = html_to_text(article.content)
+            if cleaned.strip().lower() not in SKIP_CONTENT:
                 content_parts.append(cleaned)
             elif article.description:
-                cleaned2 = _html_to_text(article.description)
-                if cleaned2.strip().lower() not in _SKIP_CONTENT:
+                cleaned2 = html_to_text(article.description)
+                if cleaned2.strip().lower() not in SKIP_CONTENT:
                     content_parts.append(cleaned2)
         elif article.description:
-            cleaned = _html_to_text(article.description)
-            if cleaned.strip().lower() not in _SKIP_CONTENT:
+            cleaned = html_to_text(article.description)
+            if cleaned.strip().lower() not in SKIP_CONTENT:
                 content_parts.append(cleaned)
 
         if not content_parts:
@@ -209,9 +208,7 @@ class DashboardScreen(Screen[None]):
         scroll = self.query_one("#preview-scroll", VerticalScroll)
         scroll.scroll_home(animate=False)
 
-    def on_option_list_option_selected(
-        self, event: OptionList.OptionSelected
-    ) -> None:
+    def on_option_list_option_selected(self, event: OptionList.OptionSelected) -> None:
         """Handle selection in either the article list or bookmarks list."""
         option_id = event.option.id
         if option_id and option_id.startswith("article-"):
@@ -246,9 +243,7 @@ class DashboardScreen(Screen[None]):
     def action_read_article(self) -> None:
         list_widget = self.query_one("#article-list", OptionList)
         highlighted = list_widget.highlighted
-        if highlighted is None or highlighted < 0 or highlighted >= len(
-            self._filtered_articles
-        ):
+        if highlighted is None or highlighted < 0 or highlighted >= len(self._filtered_articles):
             self.notify("No article selected", severity="warning")
             return
         article = self._filtered_articles[highlighted]
@@ -267,9 +262,7 @@ class DashboardScreen(Screen[None]):
     def action_toggle_bookmark(self) -> None:
         list_widget = self.query_one("#article-list", OptionList)
         highlighted = list_widget.highlighted
-        if highlighted is None or highlighted < 0 or highlighted >= len(
-            self._filtered_articles
-        ):
+        if highlighted is None or highlighted < 0 or highlighted >= len(self._filtered_articles):
             self.notify("No article selected", severity="warning")
             return
         article = self._filtered_articles[highlighted]
@@ -290,9 +283,7 @@ class DashboardScreen(Screen[None]):
 
         list_widget = self.query_one("#article-list", OptionList)
         highlighted = list_widget.highlighted
-        if highlighted is None or highlighted < 0 or highlighted >= len(
-            self._filtered_articles
-        ):
+        if highlighted is None or highlighted < 0 or highlighted >= len(self._filtered_articles):
             self.notify("No article selected", severity="warning")
             return
         article = self._filtered_articles[highlighted]
@@ -311,7 +302,7 @@ class DashboardScreen(Screen[None]):
                     if hasattr(app, "action_refresh"):
                         app.run_worker(app.action_refresh(force=True))
 
-        self.app.push_screen(_InputScreen("Enter RSS feed URL:", _on_result))
+        self.app.push_screen(InputScreen("Enter RSS feed URL:", _on_result))
 
     def action_delete_feed(self) -> None:
         """Show a list of all feeds so the user can select one to delete."""
@@ -327,7 +318,7 @@ class DashboardScreen(Screen[None]):
         for url in feed_urls:
             if url not in feed_titles:
                 feed_titles[url] = url
-        self.app.push_screen(_FeedSelectScreen(feed_urls, feed_titles))
+        self.app.push_screen(FeedSelectScreen(feed_urls, feed_titles))
 
     def action_refresh(self) -> None:
         app = self.app
@@ -356,105 +347,4 @@ class DashboardScreen(Screen[None]):
                 ]
             self._populate_articles()
 
-        self.app.push_screen(_InputScreen("Search articles:", _on_result))
-
-
-class _InputScreen(Screen[None]):
-    """Simple input dialog screen."""
-
-    CSS = """
-    _InputScreen {
-        align: center middle;
-    }
-    """
-
-    def __init__(self, prompt: str, callback: object) -> None:
-        super().__init__()
-        self.prompt_text = prompt
-        self.callback = callback
-
-    def compose(self) -> ComposeResult:
-        from textual.widgets import Input, Label
-
-        with Vertical(id="input-dialog"):
-            yield Label(self.prompt_text, id="prompt-label")
-            yield Input(placeholder="https://example.com/feed.xml", id="url-input")
-
-    def on_input_submitted(self, event: object) -> None:
-        from textual.widgets import Input
-
-        assert isinstance(event, Input.Submitted)
-        value = event.value
-        self.app.pop_screen()
-        if callable(self.callback):
-            self.callback(value)
-
-    def key_escape(self) -> None:
-        self.app.pop_screen()
-        if callable(self.callback):
-            self.callback(None)
-
-
-class _FeedSelectScreen(Screen[str | None]):
-    """Screen to select a feed to delete."""
-
-    CSS = """
-    _FeedSelectScreen {
-        align: center middle;
-    }
-    #feed-select-dialog {
-        width: 60;
-        height: 20;
-        padding: 1 2;
-        background: $surface;
-        border: tall $primary;
-    }
-    #feed-select-title {
-        text-style: bold;
-        margin-bottom: 1;
-    }
-    #feed-list {
-        height: 1fr;
-    }
-    """
-
-    BINDINGS = [
-        Binding("escape", "cancel", "Cancel", show=True),
-    ]
-
-    def __init__(self, feed_urls: list[str], feed_titles: dict[str, str]) -> None:
-        super().__init__()
-        self.feed_urls = feed_urls
-        self.feed_titles = feed_titles
-
-    def compose(self) -> ComposeResult:
-        with Vertical(id="feed-select-dialog"):
-            yield Static("Select a feed to delete:", id="feed-select-title")
-            yield OptionList(id="feed-list")
-
-    def on_mount(self) -> None:
-        list_widget = self.query_one("#feed-list", OptionList)
-        for i, url in enumerate(self.feed_urls):
-            title = self.feed_titles.get(url, url)
-            prompt = Text()
-            prompt.append(title, style="bold")
-            prompt.append(f"\n{url}", style="dim italic")
-            list_widget.add_option(Option(prompt, id=f"feed-{i}"))
-
-    def on_option_list_option_selected(self, event: OptionList.OptionSelected) -> None:
-        option_id = event.option.id
-        if option_id and option_id.startswith("feed-"):
-            idx = int(option_id.split("-", 1)[1])
-            if 0 <= idx < len(self.feed_urls):
-                url = self.feed_urls[idx]
-                title = self.feed_titles.get(url, url)
-                remove_feed_url(url)
-                self.app.pop_screen()
-                self.app.notify(f"Removed feed: {title}", severity="information")
-                # Refresh the dashboard
-                app = self.app
-                if hasattr(app, "action_refresh"):
-                    app.run_worker(app.action_refresh())
-
-    def action_cancel(self) -> None:
-        self.app.pop_screen()
+        self.app.push_screen(InputScreen("Search articles:", _on_result))

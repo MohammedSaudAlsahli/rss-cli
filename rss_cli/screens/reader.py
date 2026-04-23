@@ -12,8 +12,7 @@ from textual.widgets import Footer, Header, Markdown, Static
 
 from rss_cli.models.feed import Article
 from rss_cli.services.cache import toggle_bookmark
-
-_SKIP_CONTENT = {"[comments]", "comments", ""}
+from rss_cli.utils import SKIP_CONTENT, html_to_text
 
 
 class ReaderScreen(Screen[None]):
@@ -58,23 +57,22 @@ class ReaderScreen(Screen[None]):
         meta_parts = [a.pub_date_display, a.feed_name, a.feed_title]
         bookmark_prefix = "• " if a.is_bookmarked else ""
         header.update(
-            f" [bold cyan]{bookmark_prefix}[/][bold]{a.title}[/]\n"
-            f" [dim]{' · '.join(meta_parts)}[/]"
+            f" [bold cyan]{bookmark_prefix}[/][bold]{a.title}[/]\n [dim]{' · '.join(meta_parts)}[/]"
         )
 
         content_parts: list[str] = []
 
         if a.content:
-            cleaned = _html_to_text(a.content)
-            if cleaned.strip().lower() not in _SKIP_CONTENT:
+            cleaned = html_to_text(a.content)
+            if cleaned.strip().lower() not in SKIP_CONTENT:
                 content_parts.append(cleaned)
             elif a.description:
-                cleaned_desc = _html_to_text(a.description)
-                if cleaned_desc.strip().lower() not in _SKIP_CONTENT:
+                cleaned_desc = html_to_text(a.description)
+                if cleaned_desc.strip().lower() not in SKIP_CONTENT:
                     content_parts.append(cleaned_desc)
         elif a.description:
-            cleaned = _html_to_text(a.description)
-            if cleaned.strip().lower() not in _SKIP_CONTENT:
+            cleaned = html_to_text(a.description)
+            if cleaned.strip().lower() not in SKIP_CONTENT:
                 content_parts.append(cleaned)
 
         if not content_parts:
@@ -123,24 +121,3 @@ class ReaderScreen(Screen[None]):
         app = self.app
         if hasattr(app, "go_prev_article"):
             app.go_prev_article()
-
-
-def _html_to_text(html: str) -> str:
-    """Strip basic HTML tags for display."""
-    import re
-
-    text = re.sub(r"<br\s*/?>", "\n", html)
-    text = re.sub(r"</?p\s*>", "\n", text)
-    text = re.sub(r"</?div\s*>", "\n", text)
-    text = re.sub(r"<h[1-6][^>]*>", "\n## ", text)
-    text = re.sub(r"</h[1-6]>", "\n", text)
-    text = re.sub(r"<li[^>]*>", "- ", text)
-    text = re.sub(r"<strong[^>]*>", "**", text)
-    text = re.sub(r"</strong>", "**", text)
-    text = re.sub(r"<em[^>]*>", "*", text)
-    text = re.sub(r"</em>", "*", text)
-    text = re.sub(r"<a[^>]*href=['\"]([^'\"]*)['\"][^>]*>", "[", text)
-    text = re.sub(r"</a>", "]", text)
-    text = re.sub(r"<[^>]+>", "", text)
-    text = re.sub(r"\n{3,}", "\n\n", text)
-    return text.strip()

@@ -4,76 +4,12 @@ from __future__ import annotations
 
 from textual.app import App
 from textual.binding import Binding
-from textual.theme import Theme
 
 from rss_cli.models.feed import Article, Feed
+from rss_cli.screens.dashboard import DashboardScreen
+from rss_cli.screens.reader import ReaderScreen
 from rss_cli.services.feed_service import fetch_feeds
-
-# Tokyo Night-inspired dark theme
-TOKYO_NIGHT = Theme(
-    name="tokyo-night",
-    primary="#7aa2f7",
-    secondary="#bb9af7",
-    accent="#7dcfff",
-    warning="#e0af68",
-    error="#f7768e",
-    success="#9ece6a",
-    foreground="#c0caf5",
-    background="#1a1b26",
-    surface="#1f2335",
-    panel="#292e42",
-    dark=True,
-    variables={
-        "input-selection-background": "#7aa2f7 30%",
-        "footer-key-foreground": "#7aa2f7",
-        "block-cursor-foreground": "#1a1b26",
-        "block-cursor-background": "#7aa2f7",
-    },
-)
-
-# Nord-inspired dark theme
-NORD = Theme(
-    name="nord",
-    primary="#88c0d0",
-    secondary="#81a1c1",
-    accent="#b48ead",
-    warning="#ebcb8b",
-    error="#bf616a",
-    success="#a3be8c",
-    foreground="#d8dee9",
-    background="#2e3440",
-    surface="#3b4252",
-    panel="#434c5e",
-    dark=True,
-    variables={
-        "input-selection-background": "#88c0d0 30%",
-        "footer-key-foreground": "#88c0d0",
-        "block-cursor-foreground": "#2e3440",
-        "block-cursor-background": "#88c0d0",
-    },
-)
-
-# Catppuccin Mocha dark theme
-CATPPUCCIN = Theme(
-    name="catppuccin",
-    primary="#cba6f7",
-    secondary="#f5c2e7",
-    accent="#89dceb",
-    warning="#f9e2af",
-    error="#f38ba8",
-    success="#a6e3a1",
-    foreground="#cdd6f4",
-    background="#1e1e2e",
-    surface="#181825",
-    panel="#313244",
-    dark=True,
-    variables={
-        "input-selection-background": "#cba6f7 30%",
-        "footer-key-foreground": "#cba6f7",
-        "block-cursor-foreground": "#1e1e2e",
-        "block-cursor-background": "#cba6f7",
-    },
-)
+from rss_cli.themes import THEMES
 
 
 class RssCliApp(App[None]):
@@ -81,68 +17,7 @@ class RssCliApp(App[None]):
 
     TITLE = "RSS CLI"
 
-    CSS = """
-    #main-container {
-        height: 1fr;
-    }
-    #article-panel {
-        width: 1fr;
-    }
-    #right-panel {
-        width: 2fr;
-        border-left: solid $primary;
-    }
-    #preview-title {
-        padding: 0 1;
-        color: $text;
-        height: auto;
-        text-style: bold;
-    }
-    #preview-meta {
-        padding: 0 1;
-        color: $text-disabled;
-        height: auto;
-        border-bottom: solid $primary;
-    }
-    #preview-scroll {
-        height: 1fr;
-    }
-    #preview-content {
-        padding: 0 1;
-    }
-    #bookmarks-list {
-        height: 1fr;
-    }
-    TabbedContent {
-        height: 1fr;
-    }
-    #reader-header {
-        height: auto;
-        padding: 1 2;
-        background: $surface;
-        border-bottom: solid $primary;
-    }
-    #reader-content {
-        height: 1fr;
-        padding: 1 2;
-    }
-    #input-dialog {
-        width: 60;
-        height: 10;
-        padding: 1 2;
-        background: $surface;
-        border: round $primary;
-    }
-    #prompt-label {
-        margin-bottom: 1;
-    }
-    #url-input {
-        margin-bottom: 1;
-    }
-    Footer {
-        dock: bottom;
-    }
-    """
+    CSS_PATH = "styles.tcss"
 
     BINDINGS = [
         Binding("q", "quit", "Quit", show=True),
@@ -156,7 +31,7 @@ class RssCliApp(App[None]):
         self.feeds: list[Feed] = []
         self.all_articles: list[Article] = []
         self._theme_index = 0
-        self._themes = [TOKYO_NIGHT, NORD, CATPPUCCIN]
+        self._themes = THEMES
 
     def on_mount(self) -> None:
         """Register themes, apply default, and load dashboard."""
@@ -242,8 +117,3 @@ class RssCliApp(App[None]):
                 pass
         except Exception:
             pass
-
-
-# Import screens at bottom to avoid circular imports
-from rss_cli.screens.dashboard import DashboardScreen  # noqa: E402
-from rss_cli.screens.reader import ReaderScreen  # noqa: E402

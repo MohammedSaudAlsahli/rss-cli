@@ -78,9 +78,7 @@ class Config:
             with open(path, "rb") as f:
                 data = tomllib.load(f)
             settings = data.get("settings", {})
-            self.cache_ttl_seconds = settings.get(
-                "cache_ttl_seconds", self.cache_ttl_seconds
-            )
+            self.cache_ttl_seconds = settings.get("cache_ttl_seconds", self.cache_ttl_seconds)
             self.max_articles_per_feed = settings.get(
                 "max_articles_per_feed", self.max_articles_per_feed
             )

@@ -53,7 +53,9 @@ class TestArticle:
             links = [{"href": "https://example.com/article"}]
             tags = []
 
-        article = Article.from_feedparser_entry(MockEntry(), "Test Feed", "https://example.com/feed")
+        article = Article.from_feedparser_entry(
+            MockEntry(), "Test Feed", "https://example.com/feed"
+        )
         assert article.title == "Test Article"
         assert article.link == "https://example.com/article"
         assert article.author == "John Doe"
@@ -65,7 +67,9 @@ class TestArticle:
         class MockEntry:
             pass
 
-        article = Article.from_feedparser_entry(MockEntry(), "Test Feed", "https://example.com/feed")
+        article = Article.from_feedparser_entry(
+            MockEntry(), "Test Feed", "https://example.com/feed"
+        )
         assert article.title == "Untitled"
         assert article.link == ""
         assert article.author == ""
@@ -84,16 +88,6 @@ class TestArticle:
         )
         assert article.pub_date_display == "23/04 10:00"
 
-    def test_status_icon_unread(self) -> None:
-        article = Article("T", "l", "", "", "", "", [], "F", "u", is_read=False)
-        assert "●" in article.status_icon
-        assert "☆" in article.status_icon
-
-    def test_status_icon_read_bookmarked(self) -> None:
-        article = Article("T", "l", "", "", "", "", [], "F", "u", is_read=True, is_bookmarked=True)
-        assert "★" in article.status_icon
-        assert "○" in article.status_icon
-
     def test_short_description(self) -> None:
         article = Article("T", "l", "A" * 200, "", "", "", [], "F", "u")
         assert len(article.short_description) <= 120
@@ -101,21 +95,42 @@ class TestArticle:
 
     def test_feed_name_extracts_domain(self) -> None:
         article = Article(
-            "T", "l", "", "", "", "", [], "F",
+            "T",
+            "l",
+            "",
+            "",
+            "",
+            "",
+            [],
+            "F",
             "https://news.ycombinator.com/rss",
         )
         assert article.feed_name == "ycombinator"
 
     def test_feed_name_strips_www(self) -> None:
         article = Article(
-            "T", "l", "", "", "", "", [], "F",
+            "T",
+            "l",
+            "",
+            "",
+            "",
+            "",
+            [],
+            "F",
             "https://www.example.com/feed.xml",
         )
         assert article.feed_name == "example"
 
     def test_feed_name_strips_news_prefix(self) -> None:
         article = Article(
-            "T", "l", "", "", "", "", [], "F",
+            "T",
+            "l",
+            "",
+            "",
+            "",
+            "",
+            [],
+            "F",
             "https://news.google.com/rss",
         )
         assert article.feed_name == "google"

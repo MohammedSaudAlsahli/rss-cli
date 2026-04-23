@@ -1,0 +1,91 @@
+/* ===== Layout ===== */
+#main-container {
+    height: 1fr;
+}
+#article-panel {
+    width: 1fr;
+}
+#right-panel {
+    width: 2fr;
+    border-left: solid $primary;
+}
+
+/* ===== Preview Panel ===== */
+#preview-title {
+    padding: 0 1;
+    color: $text;
+    height: auto;
+    text-style: bold;
+}
+#preview-meta {
+    padding: 0 1;
+    color: $text-disabled;
+    height: auto;
+    border-bottom: solid $primary;
+}
+#preview-scroll {
+    height: 1fr;
+}
+#preview-content {
+    padding: 0 1;
+}
+
+/* ===== Lists ===== */
+#bookmarks-list {
+    height: 1fr;
+}
+TabbedContent {
+    height: 1fr;
+}
+
+/* ===== Reader Screen ===== */
+#reader-header {
+    height: auto;
+    padding: 1 2;
+    background: $surface;
+    border-bottom: solid $primary;
+}
+#reader-content {
+    height: 1fr;
+    padding: 1 2;
+}
+
+/* ===== Dialog Screens ===== */
+_InputScreen {
+    align: center middle;
+}
+#input-dialog {
+    width: 60;
+    height: 10;
+    padding: 1 2;
+    background: $surface;
+    border: round $primary;
+}
+#prompt-label {
+    margin-bottom: 1;
+}
+#url-input {
+    margin-bottom: 1;
+}
+_FeedSelectScreen {
+    align: center middle;
+}
+#feed-select-dialog {
+    width: 60;
+    height: 20;
+    padding: 1 2;
+    background: $surface;
+    border: tall $primary;
+}
+#feed-select-title {
+    text-style: bold;
+    margin-bottom: 1;
+}
+#feed-list {
+    height: 1fr;
+}
+
+/* ===== Footer ===== */
+Footer {
+    dock: bottom;
+}
