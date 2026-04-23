@@ -182,9 +182,9 @@ class RssCliApp(App[None]):
         self.theme = theme.name
         self.notify(f"Theme: {theme.name}", severity="information")
 
-    async def action_refresh(self) -> None:
-        """Refresh all feeds."""
-        self.feeds = await fetch_feeds()
+    async def action_refresh(self, force: bool = False) -> None:
+        """Refresh all feeds. Uses cache unless force=True."""
+        self.feeds = await fetch_feeds(force=force)
         self.all_articles = []
         for feed in self.feeds:
             self.all_articles.extend(feed.articles)

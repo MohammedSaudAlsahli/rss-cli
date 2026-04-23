@@ -65,7 +65,7 @@ class Config:
     """Application configuration loaded from TOML."""
 
     def __init__(self) -> None:
-        self.cache_ttl_seconds: int = 300  # 5 minutes default
+        self.cache_ttl_seconds: int = 1800  # 30 minutes default
         self.max_articles_per_feed: int = 50
         self._load()
 

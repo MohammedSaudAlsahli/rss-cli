@@ -64,16 +64,18 @@ def _fetch_all_sync(urls: list[str]) -> list[Article]:
     return all_articles
 
 
-async def fetch_feeds() -> list[Feed]:
+async def fetch_feeds(force: bool = False) -> list[Feed]:
     """Fetch all feeds and return Feed objects grouped by source.
 
     Uses cache if available and not expired.
+    Set force=True to bypass cache and always fetch fresh.
     """
-    # Check cache first
-    cached = load_cache()
-    if cached is not None:
-        articles = apply_all_state(cached)
-        return group_by_feed(articles)
+    # Check cache first (unless force refresh)
+    if not force:
+        cached = load_cache()
+        if cached is not None:
+            articles = apply_all_state(cached)
+            return group_by_feed(articles)
 
     # Fetch fresh
     urls = load_feed_urls()
@@ -95,6 +97,6 @@ async def fetch_feeds() -> list[Feed]:
     return group_by_feed(all_articles)
 
 
-def fetch_feeds_sync() -> list[Feed]:
+def fetch_feeds_sync(force: bool = False) -> list[Feed]:
     """Synchronous wrapper for fetch_feeds."""
-    return asyncio.run(fetch_feeds())
+    return asyncio.run(fetch_feeds(force=force))

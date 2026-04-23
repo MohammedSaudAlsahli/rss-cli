@@ -304,7 +304,7 @@ class DashboardScreen(Screen[None]):
                     self.notify(f"Added: {url}", severity="information")
                     app = self.app
                     if hasattr(app, "action_refresh"):
-                        app.run_worker(app.action_refresh())
+                        app.run_worker(app.action_refresh(force=True))
 
         self.app.push_screen(_InputScreen("Enter RSS feed URL:", _on_result))
 
@@ -327,7 +327,7 @@ class DashboardScreen(Screen[None]):
     def action_refresh(self) -> None:
         app = self.app
         if hasattr(app, "action_refresh"):
-            app.run_worker(app.action_refresh())
+            app.run_worker(app.action_refresh(force=True))
 
     def action_view_all(self) -> None:
         self._filtered_articles = list(self.all_articles)
