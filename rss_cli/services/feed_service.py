@@ -1,15 +1,13 @@
-"""Feed fetching and parsing service — async with parallel fetching."""
+"""Feed fetching and parsing service — fully async with parallel fetching."""
 
 from __future__ import annotations
 
 import asyncio
-from concurrent.futures import ThreadPoolExecutor
-from typing import TYPE_CHECKING
 
 import feedparser  # type: ignore[import-untyped]
 import httpx
 
-from rss_cli.models.feed import Article
+from rss_cli.models.feed import Article, Feed
 from rss_cli.services.cache import (
     apply_all_state,
     group_by_feed,
@@ -18,24 +16,20 @@ from rss_cli.services.cache import (
 )
 from rss_cli.services.config import get_config, load_feed_urls
 
-if TYPE_CHECKING:
-    from rss_cli.models.feed import Feed
 
-
-def _fetch_feed(url: str) -> list[Article]:
-    """Fetch and parse a single RSS feed. Returns list of articles."""
+async def _fetch_feed(client: httpx.AsyncClient, url: str) -> list[Article]:
+    """Fetch and parse a single RSS feed asynchronously."""
     try:
-        with httpx.Client(timeout=15, follow_redirects=True) as client:
-            response = client.get(url)
-            response.raise_for_status()
+        response = await client.get(url)
+        response.raise_for_status()
     except httpx.HTTPError:
         return []
 
     feed = feedparser.parse(response.text)
 
     # feedparser sets bozo for parse errors — still usable for partial results
-    feed_title = getattr(feed, "channel", None)
-    title = getattr(feed_title, "title", url) if feed_title else url
+    feed_title_obj = getattr(feed, "channel", None)
+    title = getattr(feed_title_obj, "title", url) if feed_title_obj else url
 
     articles: list[Article] = []
     entries = getattr(feed, "entries", [])
@@ -48,18 +42,21 @@ def _fetch_feed(url: str) -> list[Article]:
     return articles
 
 
-def _fetch_all_sync(urls: list[str]) -> list[Article]:
-    """Fetch multiple feeds in parallel using ThreadPoolExecutor."""
-    all_articles: list[Article] = []
+async def _fetch_all_feeds(urls: list[str]) -> list[Article]:
+    """Fetch multiple feeds in parallel using async httpx."""
+    async with httpx.AsyncClient(
+        timeout=httpx.Timeout(15.0),
+        follow_redirects=True,
+        limits=httpx.Limits(max_connections=10, max_keepalive_connections=5),
+    ) as client:
+        tasks = [_fetch_feed(client, url) for url in urls]
+        results = await asyncio.gather(*tasks, return_exceptions=True)
 
-    with ThreadPoolExecutor(max_workers=min(len(urls), 10)) as executor:
-        futures = {executor.submit(_fetch_feed, url): url for url in urls}
-        for future in futures:
-            try:
-                articles = future.result(timeout=20)
-                all_articles.extend(articles)
-            except Exception:
-                continue  # Skip failed feeds silently
+    all_articles: list[Article] = []
+    for result in results:
+        if isinstance(result, BaseException):
+            continue  # Skip failed feeds silently
+        all_articles.extend(list(result))
 
     return all_articles
 
@@ -82,8 +79,7 @@ async def fetch_feeds(force: bool = False) -> list[Feed]:
     if not urls:
         return []
 
-    loop = asyncio.get_event_loop()
-    all_articles = await loop.run_in_executor(None, _fetch_all_sync, urls)
+    all_articles = await _fetch_all_feeds(urls)
 
     # Sort all articles by date (newest first)
     all_articles.sort(key=lambda a: a.pub_date_parsed, reverse=True)
