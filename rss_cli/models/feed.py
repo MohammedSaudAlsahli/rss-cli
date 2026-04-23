@@ -32,7 +32,7 @@ def _format_date(date_str: str | None) -> str:
     dt = _parse_date(date_str)
     if dt == datetime.min:
         return "Unknown"
-    return dt.strftime("%m/%d %H:%M")
+    return dt.strftime("%d/%m %H:%M")
 
 
 def _truncate(text: str, max_len: int = 120) -> str:
