@@ -10,9 +10,8 @@ from textual.containers import VerticalScroll
 from textual.screen import Screen
 from textual.widgets import Footer, Header, Markdown, Static
 
-from rss_cli.models.feed import Article
+from rss_cli.models.article import Article
 from rss_cli.services.cache import toggle_bookmark
-from rss_cli.utils import SKIP_CONTENT, html_to_text
 
 
 class ReaderScreen(Screen[None]):
@@ -62,18 +61,10 @@ class ReaderScreen(Screen[None]):
 
         content_parts: list[str] = []
 
-        if a.content:
-            cleaned = html_to_text(a.content)
-            if cleaned.strip().lower() not in SKIP_CONTENT:
-                content_parts.append(cleaned)
-            elif a.description:
-                cleaned_desc = html_to_text(a.description)
-                if cleaned_desc.strip().lower() not in SKIP_CONTENT:
-                    content_parts.append(cleaned_desc)
-        elif a.description:
-            cleaned = html_to_text(a.description)
-            if cleaned.strip().lower() not in SKIP_CONTENT:
-                content_parts.append(cleaned)
+        # Use cached parsed content instead of running html_to_text every time
+        parsed = a.parsed_content
+        if parsed:
+            content_parts.append(parsed)
 
         if not content_parts:
             content_parts.append("*No content available.*")

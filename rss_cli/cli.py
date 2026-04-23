@@ -53,6 +53,38 @@ def add(url: str = typer.Argument(..., help="RSS feed URL to add")) -> None:
         console.print(f"[yellow]Already exists:[/yellow] {url}")
 
 
+@app.command(name="add-reddit")
+def add_reddit(
+    subreddit: str = typer.Argument(
+        ..., help="Subreddit name (e.g. 'python' or 'r/python')"
+    ),
+) -> None:
+    """Add a Reddit subreddit feed."""
+    from rss_cli.services.config import build_reddit_url, save_feed_url
+
+    url = build_reddit_url(subreddit)
+    if save_feed_url(url):
+        console.print(f"[green]✓ Added:[/green] {url}")
+    else:
+        console.print(f"[yellow]Already exists:[/yellow] {url}")
+
+
+@app.command(name="add-twitter")
+def add_twitter(
+    username: str = typer.Argument(
+        ..., help="Twitter username (e.g. 'elonmusk' or '@elonmusk')"
+    ),
+) -> None:
+    """Add a Twitter/X account feed via Nitter."""
+    from rss_cli.services.config import build_nitter_url, save_feed_url
+
+    url = build_nitter_url(username)
+    if save_feed_url(url):
+        console.print(f"[green]✓ Added:[/green] {url}")
+    else:
+        console.print(f"[yellow]Already exists:[/yellow] {url}")
+
+
 @app.command()
 def remove(url: str = typer.Argument(..., help="RSS feed URL to remove")) -> None:
     """Remove an RSS feed subscription."""
@@ -88,7 +120,7 @@ def list_feeds() -> None:
 @app.command()
 def refresh() -> None:
     """Fetch and cache all feeds."""
-    from rss_cli.services.feed_service import fetch_feeds_sync
+    from rss_cli.services.fetcher import fetch_feeds_sync
 
     with console.status("[bold green]Fetching feeds..."):
         feeds = fetch_feeds_sync()

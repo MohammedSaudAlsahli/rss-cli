@@ -1,8 +1,9 @@
 """Tests for RSS CLI models."""
 
 from datetime import datetime
+from unittest.mock import patch
 
-from rss_cli.models.feed import Article, _format_date, _parse_date
+from rss_cli.models.article import Article, _format_date, _parse_date
 
 
 class TestParseDate:
@@ -134,3 +135,80 @@ class TestArticle:
             "https://news.google.com/rss",
         )
         assert article.feed_name == "google"
+
+    def test_feed_name_reddit_subreddit(self) -> None:
+        article = Article(
+            "T",
+            "l",
+            "",
+            "",
+            "",
+            "",
+            [],
+            "F",
+            "https://www.reddit.com/r/python/.rss",
+        )
+        assert article.feed_name == "r/python"
+
+    def test_feed_name_reddit_subreddit_no_trailing_dot(self) -> None:
+        article = Article(
+            "T",
+            "l",
+            "",
+            "",
+            "",
+            "",
+            [],
+            "F",
+            "https://www.reddit.com/r/programming/rss",
+        )
+        assert article.feed_name == "r/programming"
+
+    def test_feed_name_nitter_user(self) -> None:
+        with patch("rss_cli.services.config.get_nitter_instances", return_value=["nitter.net"]):
+            article = Article(
+                "T",
+                "l",
+                "",
+                "",
+                "",
+                "",
+                [],
+                "F",
+                "https://nitter.net/elonmusk/rss",
+            )
+            assert article.feed_name == "@elonmusk"
+
+    def test_feed_name_nitter_xcancel(self) -> None:
+        with patch(
+            "rss_cli.services.config.get_nitter_instances",
+            return_value=["xcancel.com", "nitter.poast.org"],
+        ):
+            article = Article(
+                "T",
+                "l",
+                "",
+                "",
+                "",
+                "",
+                [],
+                "F",
+                "https://xcancel.com/someuser/rss",
+            )
+            assert article.feed_name == "@someuser"
+
+    def test_feed_name_non_nitter_rss_path_uses_hostname(self) -> None:
+        """A non-Nitter URL ending in /{segment}/rss should use hostname, not @segment."""
+        article = Article(
+            "T",
+            "l",
+            "",
+            "",
+            "",
+            "",
+            [],
+            "F",
+            "https://example.com/blog/rss",
+        )
+        # Not a Nitter instance → falls through to hostname logic
+        assert article.feed_name == "example"

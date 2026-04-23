@@ -3,27 +3,28 @@
 from __future__ import annotations
 
 import asyncio
+from urllib.parse import urlparse
 
 import feedparser  # type: ignore[import-untyped]
 import httpx
 
-from rss_cli.models.feed import Article, Feed
+from rss_cli.models.article import Article, Feed
 from rss_cli.services.cache import (
     apply_all_state,
     group_by_feed,
     load_cache,
     save_cache,
 )
-from rss_cli.services.config import get_config, load_feed_urls
+from rss_cli.services.config import get_config, get_nitter_instances, load_feed_urls
 
 
-async def _fetch_feed(client: httpx.AsyncClient, url: str) -> list[Article]:
-    """Fetch and parse a single RSS feed asynchronously."""
+async def _parse_feed(client: httpx.AsyncClient, url: str) -> list[Article] | None:
+    """Fetch and parse a single feed. Returns None on HTTP failure (for fallback)."""
     try:
         response = await client.get(url)
         response.raise_for_status()
     except httpx.HTTPError:
-        return []
+        return None  # Signal: try fallback
 
     feed = feedparser.parse(response.text)
 
@@ -40,6 +41,38 @@ async def _fetch_feed(client: httpx.AsyncClient, url: str) -> list[Article]:
         articles.append(article)
 
     return articles
+
+
+def _nitter_path(url: str) -> str | None:
+    """Extract the Nitter path (e.g. '/username/rss') if URL is a Nitter feed."""
+    parsed = urlparse(url)
+    host = parsed.hostname or ""
+    if host in get_nitter_instances() and parsed.path.endswith("/rss"):
+        return parsed.path
+    return None
+
+
+async def _fetch_feed(client: httpx.AsyncClient, url: str) -> list[Article]:
+    """Fetch a feed with Nitter instance fallback on failure."""
+    result = await _parse_feed(client, url)
+    if result is not None:
+        return result
+
+    # Try Nitter fallback instances
+    path = _nitter_path(url)
+    if path is None:
+        return []  # Not a Nitter URL — no fallback
+
+    original_host = urlparse(url).hostname or ""
+    for instance in get_nitter_instances():
+        if instance == original_host:
+            continue  # Already tried
+        fallback_url = f"https://{instance}{path}"
+        result = await _parse_feed(client, fallback_url)
+        if result is not None:
+            return result
+
+    return []  # All instances failed
 
 
 async def _fetch_all_feeds(urls: list[str]) -> list[Article]:

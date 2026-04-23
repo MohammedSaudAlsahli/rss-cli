@@ -8,13 +8,17 @@ from textual.binding import Binding
 from textual.containers import Horizontal, Vertical, VerticalScroll
 from textual.screen import Screen
 from textual.widgets import Footer, Header, Markdown, OptionList, Static, TabbedContent, TabPane
-from textual.widgets.option_list import Option
+from textual.widgets.option_list import Option, OptionDoesNotExist
 
-from rss_cli.models.feed import Article, Feed
+from rss_cli.models.article import Article, Feed
 from rss_cli.screens.dialogs import FeedSelectScreen, InputScreen
-from rss_cli.services.cache import apply_all_state, mark_article_read, toggle_bookmark
+from rss_cli.services.cache import (
+    apply_all_state,
+    invalidate_state_cache,
+    mark_article_read,
+    toggle_bookmark,
+)
 from rss_cli.services.config import load_feed_urls, save_feed_url
-from rss_cli.utils import SKIP_CONTENT, html_to_text
 
 
 class DashboardScreen(Screen[None]):
@@ -71,6 +75,7 @@ class DashboardScreen(Screen[None]):
 
     def refresh_state(self) -> None:
         """Re-apply read/bookmark state from disk and repopulate lists."""
+        invalidate_state_cache()
         apply_all_state(self.all_articles)
         # Also re-apply to filtered list (same objects, so already updated)
         self._populate_articles()
@@ -178,18 +183,10 @@ class DashboardScreen(Screen[None]):
 
         content_parts: list[str] = []
 
-        if article.content and len(article.content) > len(article.description):
-            cleaned = html_to_text(article.content)
-            if cleaned.strip().lower() not in SKIP_CONTENT:
-                content_parts.append(cleaned)
-            elif article.description:
-                cleaned2 = html_to_text(article.description)
-                if cleaned2.strip().lower() not in SKIP_CONTENT:
-                    content_parts.append(cleaned2)
-        elif article.description:
-            cleaned = html_to_text(article.description)
-            if cleaned.strip().lower() not in SKIP_CONTENT:
-                content_parts.append(cleaned)
+        # Use cached parsed content instead of running html_to_text every time
+        parsed = article.parsed_content
+        if parsed:
+            content_parts.append(parsed)
 
         if not content_parts:
             if article.link:
@@ -208,6 +205,60 @@ class DashboardScreen(Screen[None]):
         scroll = self.query_one("#preview-scroll", VerticalScroll)
         scroll.scroll_home(animate=False)
 
+    def _update_article_option(self, idx: int) -> None:
+        """Update a single article option in-place without rebuilding the list."""
+        if idx < 0 or idx >= len(self._filtered_articles):
+            return
+        article = self._filtered_articles[idx]
+        list_widget = self.query_one("#article-list", OptionList)
+        try:
+            list_widget.replace_option_prompt(
+                f"article-{idx}",
+                self._make_article_prompt(article),
+            )
+        except OptionDoesNotExist:
+            pass  # List may have been rebuilt; fall back to full populate
+
+    def _update_bookmark_options_for_read(self, article: Article) -> None:
+        """Update bookmark list entries for an article that was marked read."""
+        bm_widget = self.query_one("#bookmarks-list", OptionList)
+        bookmarked = [a for a in self.all_articles if a.is_bookmarked]
+        for i, bm_article in enumerate(bookmarked):
+            if bm_article.link == article.link:
+                try:
+                    bm_widget.replace_option_prompt(
+                        f"bookmark-{i}",
+                        self._make_bookmark_prompt(bm_article),
+                    )
+                except OptionDoesNotExist:
+                    pass
+                break
+
+    def _get_active_article(self) -> Article | None:
+        """Return the currently highlighted article, regardless of which tab is active."""
+        tabs = self.query_one("#left-tabs", TabbedContent)
+        active_tab = tabs.active
+
+        if active_tab == "bookmarks-tab":
+            bm_widget = self.query_one("#bookmarks-list", OptionList)
+            highlighted = bm_widget.highlighted
+            if highlighted is None or highlighted < 0:
+                return None
+            bookmarked = [a for a in self.all_articles if a.is_bookmarked]
+            if highlighted < len(bookmarked):
+                return bookmarked[highlighted]
+            return None
+        else:
+            list_widget = self.query_one("#article-list", OptionList)
+            highlighted = list_widget.highlighted
+            if (
+                highlighted is None
+                or highlighted < 0
+                or highlighted >= len(self._filtered_articles)
+            ):
+                return None
+            return self._filtered_articles[highlighted]
+
     def on_option_list_option_selected(self, event: OptionList.OptionSelected) -> None:
         """Handle selection in either the article list or bookmarks list."""
         option_id = event.option.id
@@ -218,12 +269,9 @@ class DashboardScreen(Screen[None]):
                 if not article.is_read:
                     mark_article_read(article.link)
                     article.is_read = True
-                    self._populate_articles()
-                    self._populate_bookmarks()
-                    # Restore highlight after repopulation
-                    list_widget = self.query_one("#article-list", OptionList)
-                    if 0 <= idx < list_widget.option_count:
-                        list_widget.highlighted = idx
+                    # Lazy update: only refresh the changed option, not the whole list
+                    self._update_article_option(idx)
+                    self._update_bookmark_options_for_read(article)
                 self._update_preview(article)
         elif option_id and option_id.startswith("bookmark-"):
             bookmarked = [a for a in self.all_articles if a.is_bookmarked]
@@ -233,60 +281,77 @@ class DashboardScreen(Screen[None]):
                 if not article.is_read:
                     mark_article_read(article.link)
                     article.is_read = True
-                    self._populate_articles()
-                    self._populate_bookmarks()
+                    # Lazy update: update the article in the main list
+                    art_idx = self._find_article_index(article)
+                    if art_idx is not None:
+                        self._update_article_option(art_idx)
+                    # Update the bookmark entry in-place
                     bm_widget = self.query_one("#bookmarks-list", OptionList)
-                    if 0 <= idx < bm_widget.option_count:
-                        bm_widget.highlighted = idx
+                    try:
+                        bm_widget.replace_option_prompt(
+                            f"bookmark-{idx}",
+                            self._make_bookmark_prompt(article),
+                        )
+                    except OptionDoesNotExist:
+                        pass
                 self._update_preview(article)
 
+    def _find_article_index(self, article: Article) -> int | None:
+        """Find the index of an article in _filtered_articles by link."""
+        for i, a in enumerate(self._filtered_articles):
+            if a.link == article.link:
+                return i
+        return None
+
     def action_read_article(self) -> None:
-        list_widget = self.query_one("#article-list", OptionList)
-        highlighted = list_widget.highlighted
-        if highlighted is None or highlighted < 0 or highlighted >= len(self._filtered_articles):
+        article = self._get_active_article()
+        if article is None:
             self.notify("No article selected", severity="warning")
             return
-        article = self._filtered_articles[highlighted]
         mark_article_read(article.link)
         article.is_read = True
-        self._populate_articles()
-        self._populate_bookmarks()
-        # Restore highlight after repopulation
-        if 0 <= highlighted < list_widget.option_count:
-            list_widget.highlighted = highlighted
+        # Lazy update: refresh the article option in the main list
+        art_idx = self._find_article_index(article)
+        if art_idx is not None:
+            self._update_article_option(art_idx)
+        self._update_bookmark_options_for_read(article)
 
         app = self.app
         if hasattr(app, "go_to_reader"):
             app.go_to_reader(article)
 
     def action_toggle_bookmark(self) -> None:
-        list_widget = self.query_one("#article-list", OptionList)
-        highlighted = list_widget.highlighted
-        if highlighted is None or highlighted < 0 or highlighted >= len(self._filtered_articles):
+        article = self._get_active_article()
+        if article is None:
             self.notify("No article selected", severity="warning")
             return
-        article = self._filtered_articles[highlighted]
         is_bookmarked = toggle_bookmark(article.link)
         article.is_bookmarked = is_bookmarked
         label = "Bookmarked" if is_bookmarked else "Bookmark removed"
         self.notify(label, severity="information")
-        self._populate_articles()
+        # Lazy update: refresh the article option in the main list
+        art_idx = self._find_article_index(article)
+        if art_idx is not None:
+            self._update_article_option(art_idx)
+        # Bookmarks list must be fully rebuilt (set of bookmarked articles changed)
         self._populate_bookmarks()
-        # Restore highlight to the same article after repopulation
-        if 0 <= highlighted < list_widget.option_count:
-            list_widget.highlighted = highlighted
+        # Re-focus the bookmarks list and restore a sensible highlight position
+        tabs = self.query_one("#left-tabs", TabbedContent)
+        if tabs.active == "bookmarks-tab":
+            bm_widget = self.query_one("#bookmarks-list", OptionList)
+            bm_widget.focus()
+            if bm_widget.option_count > 0:
+                bm_widget.highlighted = 0
         if self._selected_article and self._selected_article.link == article.link:
             self._update_preview(article)
 
     def action_open_browser(self) -> None:
         import webbrowser
 
-        list_widget = self.query_one("#article-list", OptionList)
-        highlighted = list_widget.highlighted
-        if highlighted is None or highlighted < 0 or highlighted >= len(self._filtered_articles):
+        article = self._get_active_article()
+        if article is None:
             self.notify("No article selected", severity="warning")
             return
-        article = self._filtered_articles[highlighted]
         if article.link:
             webbrowser.open(article.link)
         else:

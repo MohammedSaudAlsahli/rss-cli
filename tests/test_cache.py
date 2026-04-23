@@ -4,12 +4,13 @@ import json
 from pathlib import Path
 from unittest.mock import patch
 
-from rss_cli.models.feed import Article
+from rss_cli.models.article import Article
 from rss_cli.services.cache import (
     apply_all_state,
     apply_bookmark_state,
     apply_read_state,
     group_by_feed,
+    invalidate_state_cache,
     load_cache,
     load_read_state,
     mark_article_read,
@@ -39,7 +40,7 @@ def _make_article(
 
 class TestCache:
     def test_save_and_load(self, tmp_path: Path) -> None:
-        cache_path = tmp_path / "articles.json"
+        cache_path = tmp_path / "articles.db"
         articles = [_make_article()]
         with patch("rss_cli.services.cache.cache_file_path", return_value=cache_path):
             with patch("rss_cli.services.cache.get_config") as mock_cfg:
@@ -51,7 +52,7 @@ class TestCache:
                 assert loaded[0].title == "Test"
 
     def test_load_missing_returns_none(self, tmp_path: Path) -> None:
-        cache_path = tmp_path / "nonexistent.json"
+        cache_path = tmp_path / "nonexistent.db"
         with patch("rss_cli.services.cache.cache_file_path", return_value=cache_path):
             assert load_cache() is None
 
@@ -70,6 +71,7 @@ class TestGroupByFeed:
 
 class TestReadState:
     def test_mark_and_load(self, tmp_path: Path) -> None:
+        invalidate_state_cache()
         state_path = tmp_path / "read_state.json"
         with patch("rss_cli.services.cache.read_state_path", return_value=state_path):
             mark_article_read("https://example.com/a1")
@@ -77,6 +79,7 @@ class TestReadState:
             assert "https://example.com/a1" in state
 
     def test_apply_read_state(self, tmp_path: Path) -> None:
+        invalidate_state_cache()
         state_path = tmp_path / "read_state.json"
         state_path.write_text(json.dumps({"read": ["https://example.com/a1"]}))
         articles = [
@@ -91,12 +94,14 @@ class TestReadState:
 
 class TestBookmarks:
     def test_toggle_bookmark_add(self, tmp_path: Path) -> None:
+        invalidate_state_cache()
         bm_path = tmp_path / "bookmarks.json"
         with patch("rss_cli.services.cache.bookmarks_path", return_value=bm_path):
             result = toggle_bookmark("https://example.com/a1")
             assert result is True
 
     def test_toggle_bookmark_remove(self, tmp_path: Path) -> None:
+        invalidate_state_cache()
         bm_path = tmp_path / "bookmarks.json"
         with patch("rss_cli.services.cache.bookmarks_path", return_value=bm_path):
             toggle_bookmark("https://example.com/a1")
@@ -104,6 +109,7 @@ class TestBookmarks:
             assert result is False
 
     def test_apply_bookmark_state(self, tmp_path: Path) -> None:
+        invalidate_state_cache()
         bm_path = tmp_path / "bookmarks.json"
         bm_path.write_text(json.dumps({"bookmarks": ["https://example.com/a1"]}))
         articles = [
@@ -116,6 +122,7 @@ class TestBookmarks:
             assert result[1].is_bookmarked is False
 
     def test_apply_all_state(self, tmp_path: Path) -> None:
+        invalidate_state_cache()
         read_path = tmp_path / "read_state.json"
         bm_path = tmp_path / "bookmarks.json"
         read_path.write_text(json.dumps({"read": ["https://example.com/a1"]}))

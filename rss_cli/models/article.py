@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import datetime
+from functools import cached_property
 from urllib.parse import urlparse
 
 
@@ -57,24 +58,58 @@ class Article:
     is_read: bool = False
     is_bookmarked: bool = False
 
-    @property
+    @cached_property
     def pub_date_parsed(self) -> datetime:
         return _parse_date(self.pub_date)
 
-    @property
+    @cached_property
     def pub_date_display(self) -> str:
         return _format_date(self.pub_date)
 
-    @property
+    @cached_property
     def feed_name(self) -> str:
-        """Short identifier extracted from the feed URL (e.g. 'ycombinator')."""
+        """Short identifier from feed URL (e.g. 'ycombinator', 'r/python', '@user'). Cached."""
         parsed = urlparse(self.feed_url)
         host = parsed.hostname or ""
+        path = parsed.path.rstrip("/")
+
+        # Reddit: /r/{subreddit}/... → r/subreddit
+        if "reddit.com" in host:
+            import re
+
+            match = re.match(r"/r/([^/]+)", path)
+            if match:
+                return f"r/{match.group(1)}"
+
+        # Nitter: /{username}/rss → @username (only for known Nitter instances)
+        if path.endswith("/rss"):
+            from rss_cli.services.config import get_nitter_instances
+
+            if host in get_nitter_instances():
+                parts = path.rsplit("/", 2)
+                if len(parts) >= 2 and parts[-2]:
+                    return f"@{parts[-2]}"
+
+        # Default: hostname-based extraction
         parts = host.split(".")
-        # Skip common prefixes like 'www', 'news', 'rss', 'feed', 'blog'
         skip = {"www", "news", "rss", "feed", "blog", "feeds", "api"}
         name_parts = [p for p in parts if p.lower() not in skip]
         return name_parts[0] if name_parts else parts[-2] if len(parts) >= 2 else host
+
+    @cached_property
+    def parsed_content(self) -> str:
+        """HTML-stripped content, cached after first call."""
+        from rss_cli.markup import html_to_text
+
+        if self.content and len(self.content) > len(self.description):
+            cleaned = html_to_text(self.content)
+            if cleaned.strip().lower() not in {"[comments]", "comments", ""}:
+                return cleaned
+        if self.description:
+            cleaned = html_to_text(self.description)
+            if cleaned.strip().lower() not in {"[comments]", "comments", ""}:
+                return cleaned
+        return ""
 
     @property
     def short_description(self) -> str:

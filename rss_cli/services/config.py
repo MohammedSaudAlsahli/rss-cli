@@ -10,9 +10,18 @@ from platformdirs import user_cache_dir, user_config_dir, user_data_dir
 APP_NAME = "rss-cli"
 CONFIG_FILE = "config.toml"
 FEEDS_FILE = "feeds.txt"
-CACHE_FILE = "articles.json"
+CACHE_FILE = "articles.db"
 READ_STATE_FILE = "read_state.json"
 BOOKMARKS_FILE = "bookmarks.json"
+
+# Nitter instances with RSS support, ordered by reliability (status.d420.de).
+# Only instances that support RSS feeds are included.
+DEFAULT_NITTER_INSTANCES: list[str] = [
+    "nitter.net",
+    "xcancel.com",
+    "nitter.poast.org",
+    "nitter.privacyredirect.com",
+]
 
 
 def config_dir() -> Path:
@@ -67,6 +76,7 @@ class Config:
     def __init__(self) -> None:
         self.cache_ttl_seconds: int = 1800  # 30 minutes default
         self.max_articles_per_feed: int = 50
+        self.nitter_instances: list[str] = list(DEFAULT_NITTER_INSTANCES)
         self._load()
 
     def _load(self) -> None:
@@ -82,6 +92,9 @@ class Config:
             self.max_articles_per_feed = settings.get(
                 "max_articles_per_feed", self.max_articles_per_feed
             )
+            twitter = data.get("twitter", {})
+            if "nitter_instances" in twitter:
+                self.nitter_instances = twitter["nitter_instances"]
         except (tomllib.TOMLDecodeError, OSError):
             pass  # Use defaults on error
 
@@ -96,6 +109,31 @@ def get_config() -> Config:
     if _config is None:
         _config = Config()
     return _config
+
+
+def get_nitter_instances() -> list[str]:
+    """Get the configured Nitter instance list."""
+    return get_config().nitter_instances
+
+
+def build_reddit_url(subreddit: str) -> str:
+    """Build a Reddit RSS feed URL from a subreddit name.
+
+    Accepts 'python' or 'r/python' — strips the r/ prefix if present.
+    """
+    name = subreddit.strip().removeprefix("r/")
+    return f"https://www.reddit.com/r/{name}/.rss"
+
+
+def build_nitter_url(username: str, instance: str | None = None) -> str:
+    """Build a Nitter RSS feed URL for a Twitter user.
+
+    Uses the first configured Nitter instance unless `instance` is specified.
+    Accepts 'elonmusk' or '@elonmusk' — strips the @ prefix if present.
+    """
+    name = username.strip().removeprefix("@")
+    host = instance or get_nitter_instances()[0]
+    return f"https://{host}/{name}/rss"
 
 
 def load_feed_urls() -> list[str]:

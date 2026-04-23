@@ -20,7 +20,7 @@ from rss_cli.services.config import (
     remove_feed_url,
     save_feed_url,
 )
-from rss_cli.services.feed_service import fetch_feeds, fetch_feeds_sync
+from rss_cli.services.fetcher import fetch_feeds, fetch_feeds_sync
 
 __all__ = [
     "Config",

@@ -5,10 +5,10 @@ from __future__ import annotations
 from textual.app import App
 from textual.binding import Binding
 
-from rss_cli.models.feed import Article, Feed
+from rss_cli.models.article import Article, Feed
 from rss_cli.screens.dashboard import DashboardScreen
 from rss_cli.screens.reader import ReaderScreen
-from rss_cli.services.feed_service import fetch_feeds
+from rss_cli.services.fetcher import fetch_feeds
 from rss_cli.themes import THEMES
 
 
