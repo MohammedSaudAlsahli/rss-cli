@@ -1,4 +1,4 @@
-"""Dashboard — split layout: articles left (1fr), preview/bookmarks right (2fr)."""
+"""Dashboard — articles/bookmarks left (1fr), preview right (2fr)."""
 
 from __future__ import annotations
 
@@ -48,16 +48,16 @@ class DashboardScreen(Screen[None]):
         yield Header(show_clock=True)
         with Horizontal(id="main-container"):
             with Vertical(id="article-panel"):
-                yield OptionList(id="article-list")
-            with Vertical(id="right-panel"):
-                with TabbedContent(id="right-tabs"):
-                    with TabPane("Preview", id="preview-tab"):
-                        yield Static("", id="preview-title")
-                        yield Static("", id="preview-meta")
-                        with VerticalScroll(id="preview-scroll"):
-                            yield Markdown("", id="preview-content")
+                with TabbedContent(id="left-tabs"):
+                    with TabPane("Articles", id="articles-tab"):
+                        yield OptionList(id="article-list")
                     with TabPane("Bookmarks", id="bookmarks-tab"):
                         yield OptionList(id="bookmarks-list")
+            with Vertical(id="right-panel"):
+                yield Static("", id="preview-title")
+                yield Static("", id="preview-meta")
+                with VerticalScroll(id="preview-scroll"):
+                    yield Markdown("", id="preview-content")
         yield Footer()
 
     def on_mount(self) -> None:
@@ -213,16 +213,12 @@ class DashboardScreen(Screen[None]):
             idx = int(option_id.split("-", 1)[1])
             if 0 <= idx < len(self._filtered_articles):
                 article = self._filtered_articles[idx]
-                tabs = self.query_one("#right-tabs", TabbedContent)
-                tabs.active = "preview-tab"
                 self._update_preview(article)
         elif option_id and option_id.startswith("bookmark-"):
             bookmarked = [a for a in self.all_articles if a.is_bookmarked]
             idx = int(option_id.split("-", 1)[1])
             if 0 <= idx < len(bookmarked):
                 article = bookmarked[idx]
-                tabs = self.query_one("#right-tabs", TabbedContent)
-                tabs.active = "preview-tab"
                 self._update_preview(article)
 
     def action_read_article(self) -> None:
@@ -339,13 +335,6 @@ class DashboardScreen(Screen[None]):
             self._populate_articles()
 
         self.app.push_screen(_InputScreen("Search articles:", _on_result))
-
-    def action_switch_panel(self) -> None:
-        tabs = self.query_one("#right-tabs", TabbedContent)
-        if tabs.active == "preview-tab":
-            tabs.active = "bookmarks-tab"
-        else:
-            tabs.active = "preview-tab"
 
 
 class _InputScreen(Screen[None]):

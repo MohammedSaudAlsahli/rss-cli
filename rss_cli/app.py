@@ -88,9 +88,6 @@ class RssCliApp(App[None]):
     #article-panel {
         width: 1fr;
     }
-    #article-list {
-        height: 1fr;
-    }
     #right-panel {
         width: 2fr;
         border-left: solid $primary;
