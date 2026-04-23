@@ -143,6 +143,9 @@ class RssCliApp(App[None]):
     #url-input {
         margin-bottom: 1;
     }
+    Footer {
+        dock: bottom;
+    }
     """
 
     BINDINGS = [
