@@ -2,10 +2,9 @@
 
 from __future__ import annotations
 
-from textual.app import App, ComposeResult
+from textual.app import App
 from textual.binding import Binding
 from textual.theme import Theme
-from textual.widgets import Footer, Header
 
 from rss_cli.models.feed import Article, Feed
 from rss_cli.services.feed_service import fetch_feeds
@@ -161,10 +160,6 @@ class RssCliApp(App[None]):
         self.all_articles: list[Article] = []
         self._theme_index = 0
         self._themes = [TOKYO_NIGHT, NORD, CATPPUCCIN]
-
-    def compose(self) -> ComposeResult:
-        yield Header(show_clock=True)
-        yield Footer()
 
     def on_mount(self) -> None:
         """Register themes, apply default, and load dashboard."""

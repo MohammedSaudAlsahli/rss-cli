@@ -7,7 +7,7 @@ from textual.app import ComposeResult
 from textual.binding import Binding
 from textual.containers import Horizontal, Vertical, VerticalScroll
 from textual.screen import Screen
-from textual.widgets import Markdown, OptionList, Static, TabbedContent, TabPane
+from textual.widgets import Footer, Header, Markdown, OptionList, Static, TabbedContent, TabPane
 from textual.widgets.option_list import Option
 
 from rss_cli.models.feed import Article, Feed
@@ -45,6 +45,7 @@ class DashboardScreen(Screen[None]):
         self._selected_article: Article | None = None
 
     def compose(self) -> ComposeResult:
+        yield Header(show_clock=True)
         with Horizontal(id="main-container"):
             with Vertical(id="article-panel"):
                 yield OptionList(id="article-list")
@@ -57,6 +58,7 @@ class DashboardScreen(Screen[None]):
                             yield Markdown("", id="preview-content")
                     with TabPane("Bookmarks", id="bookmarks-tab"):
                         yield OptionList(id="bookmarks-list")
+        yield Footer()
 
     def on_mount(self) -> None:
         self._populate_articles()

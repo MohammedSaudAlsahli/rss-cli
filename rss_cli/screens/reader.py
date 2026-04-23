@@ -8,7 +8,7 @@ from textual.app import ComposeResult
 from textual.binding import Binding
 from textual.containers import VerticalScroll
 from textual.screen import Screen
-from textual.widgets import Markdown, Static
+from textual.widgets import Footer, Header, Markdown, Static
 
 from rss_cli.models.feed import Article
 from rss_cli.services.cache import toggle_bookmark
@@ -38,9 +38,11 @@ class ReaderScreen(Screen[None]):
         self.article: Article | None = None
 
     def compose(self) -> ComposeResult:
+        yield Header(show_clock=True)
         yield Static("", id="reader-header")
         with VerticalScroll(id="reader-content"):
             yield Markdown("", id="article-markdown")
+        yield Footer()
 
     def set_article(self, article: Article) -> None:
         self.article = article
