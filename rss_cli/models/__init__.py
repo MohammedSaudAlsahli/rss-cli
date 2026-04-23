@@ -1,7 +1,5 @@
-from .rss_model import RssData, RssCollection, LoadFeeds
+"""Data models for RSS feeds and articles."""
 
-__all__ = [
-    "RssData",
-    "RssCollection",
-    "LoadFeeds",
-]
+from rss_cli.models.feed import Article, Feed
+
+__all__ = ["Article", "Feed"]
