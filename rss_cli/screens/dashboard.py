@@ -62,6 +62,12 @@ class DashboardScreen(Screen[None]):
 
     def on_mount(self) -> None:
         self._populate_articles()
+        self._populate_bookmarks()
+        # Focus the article list and highlight the first item
+        list_widget = self.query_one("#article-list", OptionList)
+        list_widget.focus()
+        if list_widget.option_count > 0:
+            list_widget.highlighted = 0
 
     def refresh_state(self) -> None:
         """Re-apply read/bookmark state from disk and repopulate lists."""
