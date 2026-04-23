@@ -97,9 +97,9 @@ class DashboardScreen(Screen[None]):
         if len(title_text) > 70:
             title_text = title_text[:67] + "..."
         title_style = "dim" if article.is_read else "bold white"
-        if article.is_bookmarked:
-            title_style += " bold cyan"
         cell = Text()
+        if article.is_bookmarked:
+            cell.append("• ", style="bold cyan")
         cell.append(title_text, style=title_style)
         cell.append("\n")
         cell.append(self._make_meta_line(article), style="dim")
@@ -111,9 +111,8 @@ class DashboardScreen(Screen[None]):
         if len(title_text) > 50:
             title_text = title_text[:47] + "..."
         title_style = "dim" if article.is_read else "bold white"
-        if article.is_bookmarked:
-            title_style += " bold cyan"
         cell = Text()
+        cell.append("• ", style="bold cyan")
         cell.append(title_text, style=title_style)
         cell.append("\n")
         cell.append(self._make_meta_line(article), style="dim")

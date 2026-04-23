@@ -56,10 +56,10 @@ class ReaderScreen(Screen[None]):
 
         header = self.query_one("#reader-header", Static)
         meta_parts = [a.pub_date_display, a.feed_name, a.feed_title]
-        bookmark_style = " bold cyan" if a.is_bookmarked else ""
+        bookmark_prefix = "• " if a.is_bookmarked else ""
         header.update(
-            f" [bold{bookmark_style}]{a.title}[/]\n"
-            f" [dim]{'  ·  '.join(meta_parts)}[/]"
+            f" [bold cyan]{bookmark_prefix}[/][bold]{a.title}[/]\n"
+            f" [dim]{' · '.join(meta_parts)}[/]"
         )
 
         content_parts: list[str] = []
