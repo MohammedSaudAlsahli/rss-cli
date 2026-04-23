@@ -83,9 +83,6 @@ class RssCliApp(App[None]):
     TITLE = "RSS CLI"
 
     CSS = """
-    Screen {
-        align: center middle;
-    }
     #main-container {
         height: 1fr;
     }
@@ -167,13 +164,11 @@ class RssCliApp(App[None]):
         yield Footer()
 
     def on_mount(self) -> None:
-        """Register themes and apply default."""
+        """Register themes, apply default, and load dashboard."""
         for theme in self._themes:
             self.register_theme(theme)
         self.theme = "tokyo-night"
 
-    async def on_mount_async(self) -> None:
-        """Load feeds on startup and show dashboard."""
         self.install_screen(
             lambda: DashboardScreen(),  # type: ignore[arg-type]
             name="dashboard",
@@ -183,7 +178,7 @@ class RssCliApp(App[None]):
             name="reader",
         )
         self.push_screen("dashboard")
-        await self.action_refresh()
+        self.run_worker(self.action_refresh())
 
     def action_cycle_theme(self) -> None:
         """Cycle through available dark themes."""
