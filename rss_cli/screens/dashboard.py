@@ -1,4 +1,4 @@
-"""Dashboard — split layout: articles left (2/5), preview/bookmarks right (3/5)."""
+"""Dashboard — split layout: articles left (1fr), preview/bookmarks right (2fr)."""
 
 from __future__ import annotations
 
@@ -34,6 +34,17 @@ class DashboardScreen(Screen[None]):
     CSS = """
     DashboardScreen {
         layout: vertical;
+    }
+    #main-container {
+        layout: horizontal;
+        grid-size: 2;
+        grid-columns: 1fr 2fr;
+    }
+    #article-panel {
+        width: 100%;
+    }
+    #right-panel {
+        width: 100%;
     }
     """
 
@@ -94,7 +105,7 @@ class DashboardScreen(Screen[None]):
         cell = Text()
         cell.append(title_text, style=title_style)
         cell.append("\n")
-        cell.append(self._make_meta_line(article), style="dim")
+        cell.append(self._make_meta_line(article), style="dim italic")
         return cell
 
     def _make_bookmark_prompt(self, article: Article) -> Text:
@@ -108,7 +119,7 @@ class DashboardScreen(Screen[None]):
         cell = Text()
         cell.append(title_text, style=title_style)
         cell.append("\n")
-        cell.append(self._make_meta_line(article), style="dim")
+        cell.append(self._make_meta_line(article), style="dim italic")
         return cell
 
     def _populate_articles(self) -> None:

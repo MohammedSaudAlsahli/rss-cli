@@ -87,13 +87,13 @@ class RssCliApp(App[None]):
         height: 1fr;
     }
     #article-panel {
-        width: 2fr;
+        width: 1fr;
     }
     #article-list {
         height: 1fr;
     }
     #right-panel {
-        width: 3fr;
+        width: 2fr;
         border-left: solid $primary;
     }
     #preview-title {
