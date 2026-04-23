@@ -32,7 +32,7 @@ class TestParseDate:
 class TestFormatDate:
     def test_valid_date(self) -> None:
         result = _format_date("Mon, 23 Apr 2026 10:00:00 +0000")
-        assert "2026" in result
+        assert result == "04/23 10:00"
 
     def test_none_returns_unknown(self) -> None:
         result = _format_date(None)
@@ -82,7 +82,7 @@ class TestArticle:
             feed_title="Feed",
             feed_url="https://example.com/feed",
         )
-        assert "2026" in article.pub_date_display
+        assert article.pub_date_display == "04/23 10:00"
 
     def test_status_icon_unread(self) -> None:
         article = Article("T", "l", "", "", "", "", [], "F", "u", is_read=False)

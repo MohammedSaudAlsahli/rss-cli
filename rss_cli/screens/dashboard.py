@@ -83,7 +83,7 @@ class DashboardScreen(Screen[None]):
     def _make_meta_line(self, article: Article) -> str:
         """Build the second line: date · rss_name · feed_title."""
         parts = [article.pub_date_display, article.feed_name, article.feed_title]
-        return "  ·  ".join(parts)
+        return " · ".join(parts)
 
     def _make_article_prompt(self, article: Article) -> Text:
         """Build a two-line Rich Text prompt: title + meta."""
@@ -96,7 +96,7 @@ class DashboardScreen(Screen[None]):
         cell = Text()
         cell.append(title_text, style=title_style)
         cell.append("\n")
-        cell.append(self._make_meta_line(article), style="dim italic")
+        cell.append(self._make_meta_line(article), style="dim")
         return cell
 
     def _make_bookmark_prompt(self, article: Article) -> Text:
@@ -110,7 +110,7 @@ class DashboardScreen(Screen[None]):
         cell = Text()
         cell.append(title_text, style=title_style)
         cell.append("\n")
-        cell.append(self._make_meta_line(article), style="dim italic")
+        cell.append(self._make_meta_line(article), style="dim")
         return cell
 
     def _populate_articles(self) -> None:
