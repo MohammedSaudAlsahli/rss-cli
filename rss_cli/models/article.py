@@ -3,14 +3,50 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import UTC, datetime
+from enum import Enum
 from functools import cached_property
 from urllib.parse import urlparse
 
 
+class FeedType(Enum):
+    """Source type of a feed."""
+
+    RSS = "rss"
+    REDDIT = "reddit"
+    TWITTER = "twitter"
+    OTHER = "other"
+
+    @property
+    def display_name(self) -> str:
+        return self.value.capitalize()
+
+
+def detect_feed_type(url: str) -> FeedType:
+    """Detect the source type from a feed URL."""
+    parsed = urlparse(url)
+    host = parsed.hostname or ""
+
+    if "reddit.com" in host:
+        return FeedType.REDDIT
+
+    if host in _get_nitter_instances() and parsed.path.endswith("/rss"):
+        return FeedType.TWITTER
+
+    return FeedType.RSS
+
+
+def _get_nitter_instances() -> list[str]:
+    """Lazy import to avoid circular dependency."""
+    from rss_cli.services.config import get_nitter_instances
+
+    return get_nitter_instances()
+
+
 def _parse_date(date_str: str | None) -> datetime:
+    """Parse a date string, always returning a UTC-aware datetime."""
     if not date_str:
-        return datetime.min
+        return datetime.min.replace(tzinfo=UTC)
 
     formats = [
         "%a, %d %b %Y %H:%M:%S %z",
@@ -23,15 +59,19 @@ def _parse_date(date_str: str | None) -> datetime:
     ]
     for fmt in formats:
         try:
-            return datetime.strptime(date_str.strip(), fmt)
+            dt = datetime.strptime(date_str.strip(), fmt)
+            # Make naive datetimes UTC-aware so all are comparable
+            if dt.tzinfo is None:
+                dt = dt.replace(tzinfo=UTC)
+            return dt
         except (ValueError, AttributeError):
             continue
-    return datetime.min
+    return datetime.min.replace(tzinfo=UTC)
 
 
 def _format_date(date_str: str | None) -> str:
     dt = _parse_date(date_str)
-    if dt == datetime.min:
+    if dt == datetime.min.replace(tzinfo=UTC):
         return "Unknown"
     return dt.strftime("%d/%m %H:%M")
 
@@ -65,6 +105,11 @@ class Article:
     @cached_property
     def pub_date_display(self) -> str:
         return _format_date(self.pub_date)
+
+    @cached_property
+    def feed_type(self) -> FeedType:
+        """Detect the source type from the feed URL. Cached."""
+        return detect_feed_type(self.feed_url)
 
     @cached_property
     def feed_name(self) -> str:

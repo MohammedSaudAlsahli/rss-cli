@@ -1,4 +1,4 @@
-"""Dashboard — articles/bookmarks left (1fr), preview right (2fr)."""
+"""Dashboard — source-filtered tabs left (1fr), preview right (2fr)."""
 
 from __future__ import annotations
 
@@ -10,7 +10,7 @@ from textual.screen import Screen
 from textual.widgets import Footer, Header, Markdown, OptionList, Static, TabbedContent, TabPane
 from textual.widgets.option_list import Option, OptionDoesNotExist
 
-from rss_cli.models.article import Article, Feed
+from rss_cli.models.article import Article, Feed, FeedType
 from rss_cli.screens.dialogs import FeedSelectScreen, InputScreen
 from rss_cli.services.cache import (
     apply_all_state,
@@ -20,9 +20,20 @@ from rss_cli.services.cache import (
 )
 from rss_cli.services.config import load_feed_urls, save_feed_url
 
+# Mapping of tab ID → FeedType filter (None = all sources)
+_TAB_FEED_TYPES: dict[str, FeedType | None] = {
+    "all-tab": None,
+    "rss-tab": FeedType.RSS,
+    "reddit-tab": FeedType.REDDIT,
+    "twitter-tab": FeedType.TWITTER,
+}
+
+# Number of articles shown initially and per "load more" batch
+_PAGE_SIZE = 25
+
 
 class DashboardScreen(Screen[None]):
-    """Main dashboard: article list left, preview/bookmarks right."""
+    """Main dashboard: source tabs left, preview right."""
 
     BINDINGS = [
         Binding("b", "toggle_bookmark", "Bookmark", show=True),
@@ -30,6 +41,7 @@ class DashboardScreen(Screen[None]):
         Binding("enter", "read_article", "Read", show=True),
         Binding("s", "search", "Search", show=True),
         Binding("a", "add_feed", "Add feed", show=True),
+        Binding("m", "marketplace", "Marketplace", show=True),
         Binding("d", "delete_feed", "Del feed", show=True),
         Binding("r", "refresh", "Refresh", show=True),
         Binding("q", "quit", "Quit", show=True),
@@ -47,14 +59,23 @@ class DashboardScreen(Screen[None]):
         self.all_articles: list[Article] = []
         self._filtered_articles: list[Article] = []
         self._selected_article: Article | None = None
+        self._search_query: str = ""
+        # Track how many articles are currently displayed per list
+        self._displayed: dict[str, int] = {}
 
     def compose(self) -> ComposeResult:
         yield Header(show_clock=True)
         with Horizontal(id="main-container"):
             with Vertical(id="article-panel"):
                 with TabbedContent(id="left-tabs"):
-                    with TabPane("Articles", id="articles-tab"):
-                        yield OptionList(id="article-list")
+                    with TabPane("All", id="all-tab"):
+                        yield OptionList(id="all-list")
+                    with TabPane("RSS", id="rss-tab"):
+                        yield OptionList(id="rss-list")
+                    with TabPane("Reddit", id="reddit-tab"):
+                        yield OptionList(id="reddit-list")
+                    with TabPane("Twitter", id="twitter-tab"):
+                        yield OptionList(id="twitter-list")
                     with TabPane("Bookmarks", id="bookmarks-tab"):
                         yield OptionList(id="bookmarks-list")
             with Vertical(id="right-panel"):
@@ -65,10 +86,9 @@ class DashboardScreen(Screen[None]):
         yield Footer()
 
     def on_mount(self) -> None:
-        self._populate_articles()
-        self._populate_bookmarks()
-        # Focus the article list and highlight the first item
-        list_widget = self.query_one("#article-list", OptionList)
+        self._populate_all_lists()
+        # Focus the all-list and highlight the first item
+        list_widget = self.query_one("#all-list", OptionList)
         list_widget.focus()
         if list_widget.option_count > 0:
             list_widget.highlighted = 0
@@ -77,9 +97,7 @@ class DashboardScreen(Screen[None]):
         """Re-apply read/bookmark state from disk and repopulate lists."""
         invalidate_state_cache()
         apply_all_state(self.all_articles)
-        # Also re-apply to filtered list (same objects, so already updated)
-        self._populate_articles()
-        self._populate_bookmarks()
+        self._populate_all_lists()
 
     def update_feeds(self, feeds: list[Feed]) -> None:
         self.feeds = feeds
@@ -88,21 +106,38 @@ class DashboardScreen(Screen[None]):
             self.all_articles.extend(feed.articles)
         apply_all_state(self.all_articles)
         self._filtered_articles = list(self.all_articles)
-        self._populate_articles()
-        self._populate_bookmarks()
+        self._search_query = ""
+        self._populate_all_lists()
+
+    # --- Article filtering helpers ---
+
+    def _articles_for_tab(self, tab_id: str) -> list[Article]:
+        """Return articles matching the tab's source filter, respecting search."""
+        feed_type = _TAB_FEED_TYPES.get(tab_id)
+        base = self._filtered_articles if self._search_query else self.all_articles
+        if feed_type is None:
+            return base
+        return [a for a in base if a.feed_type == feed_type]
+
+    def _list_id_for_tab(self, tab_id: str) -> str:
+        """Map tab ID to its OptionList widget ID."""
+        return f"{tab_id.replace('-tab', '')}-list" if tab_id != "all-tab" else "all-list"
+
+    # --- Display helpers ---
 
     def _make_meta_line(self, article: Article) -> str:
         """Build the second line: date · rss_name · feed_title."""
         parts = [article.pub_date_display, article.feed_name, article.feed_title]
         return " · ".join(parts)
 
-    def _make_article_prompt(self, article: Article) -> Text:
-        """Build a two-line Rich Text prompt: title + meta."""
+    def _make_article_prompt(self, article: Article, index: int, total: int) -> Text:
+        """Build a two-line Rich Text prompt: index + title + meta."""
         title_text = article.title
         if len(title_text) > 70:
             title_text = title_text[:67] + "..."
         title_style = "dim" if article.is_read else "bold white"
         cell = Text()
+        cell.append(f"{index + 1:>3}/{total} ", style="dim")
         if article.is_bookmarked:
             cell.append("• ", style="bold cyan")
         cell.append(title_text, style=title_style)
@@ -110,42 +145,123 @@ class DashboardScreen(Screen[None]):
         cell.append(self._make_meta_line(article), style="dim")
         return cell
 
-    def _make_bookmark_prompt(self, article: Article) -> Text:
-        """Build a two-line Rich Text prompt for bookmarks: title + meta."""
+    def _make_bookmark_prompt(self, article: Article, index: int, total: int) -> Text:
+        """Build a two-line Rich Text prompt for bookmarks: index + title + meta."""
         title_text = article.title
         if len(title_text) > 50:
             title_text = title_text[:47] + "..."
         title_style = "dim" if article.is_read else "bold white"
         cell = Text()
+        cell.append(f"{index + 1:>3}/{total} ", style="dim")
         cell.append("• ", style="bold cyan")
         cell.append(title_text, style=title_style)
         cell.append("\n")
         cell.append(self._make_meta_line(article), style="dim")
         return cell
 
-    def _populate_articles(self) -> None:
-        list_widget = self.query_one("#article-list", OptionList)
+    def _make_load_more_prompt(self, shown: int, total: int) -> Text:
+        """Build the 'Load more' option prompt."""
+        remaining = total - shown
+        prompt = Text()
+        prompt.append(
+            f"  ↓ Load more ({remaining} remaining)...",
+            style="bold cyan",
+        )
+        return prompt
+
+    # --- List population ---
+
+    def _populate_source_list(self, list_id: str, articles: list[Article]) -> None:
+        """Populate an OptionList with the first page of articles."""
+        list_widget = self.query_one(f"#{list_id}", OptionList)
         list_widget.clear_options()
 
-        if not self._filtered_articles:
+        total = len(articles)
+        # Reset display count to one page
+        self._displayed[list_id] = min(_PAGE_SIZE, total)
+
+        if not articles:
+            label = list_id.replace("-list", "").upper()
+            if list_id == "all-list":
+                empty_msg = "No articles yet. Press [r] to refresh or [a] to add a feed."
+            else:
+                empty_msg = f"No {label} articles. Press [a] to add a feed."
             list_widget.add_option(
-                Option(
-                    Text(
-                        "No articles yet. Press [r] to refresh or [a] to add a feed.",
-                        style="dim",
-                    ),
-                    id="empty",
-                )
+                Option(Text(empty_msg, style="dim"), id="empty")
             )
             return
 
-        for i, article in enumerate(self._filtered_articles):
+        shown = self._displayed[list_id]
+        for i in range(shown):
+            article = articles[i]
             list_widget.add_option(
                 Option(
-                    self._make_article_prompt(article),
-                    id=f"article-{i}",
+                    self._make_article_prompt(article, i, total),
+                    id=f"{list_id}-article-{i}",
                 )
             )
+
+        # Add "load more" if there are remaining articles
+        if shown < total:
+            list_widget.add_option(
+                Option(
+                    self._make_load_more_prompt(shown, total),
+                    id=f"{list_id}-load-more",
+                )
+            )
+
+    def _load_more(self, list_id: str) -> None:
+        """Append the next page of articles to the list."""
+        tab_map = {
+            "all-list": "all-tab",
+            "rss-list": "rss-tab",
+            "reddit-list": "reddit-tab",
+            "twitter-list": "twitter-tab",
+        }
+        tab_id = tab_map.get(list_id)
+        if not tab_id:
+            return
+        articles = self._articles_for_tab(tab_id)
+        total = len(articles)
+        current = self._displayed.get(list_id, 0)
+
+        if current >= total:
+            return
+
+        list_widget = self.query_one(f"#{list_id}", OptionList)
+
+        # Remove the old "load more" option if present
+        try:
+            list_widget.remove_option(f"{list_id}-load-more")
+        except (OptionDoesNotExist, Exception):
+            pass
+
+        # Add the next page
+        next_count = min(current + _PAGE_SIZE, total)
+        for i in range(current, next_count):
+            article = articles[i]
+            list_widget.add_option(
+                Option(
+                    self._make_article_prompt(article, i, total),
+                    id=f"{list_id}-article-{i}",
+                )
+            )
+
+        self._displayed[list_id] = next_count
+
+        # Add new "load more" if still remaining
+        if next_count < total:
+            list_widget.add_option(
+                Option(
+                    self._make_load_more_prompt(next_count, total),
+                    id=f"{list_id}-load-more",
+                )
+            )
+
+        # Keep focus and highlight on the next unread article
+        list_widget.focus()
+        if current < list_widget.option_count:
+            list_widget.highlighted = current
 
     def _populate_bookmarks(self) -> None:
         bookmarked = [a for a in self.all_articles if a.is_bookmarked]
@@ -161,13 +277,24 @@ class DashboardScreen(Screen[None]):
             )
             return
 
+        total = len(bookmarked)
         for i, article in enumerate(bookmarked):
             list_widget.add_option(
                 Option(
-                    self._make_bookmark_prompt(article),
+                    self._make_bookmark_prompt(article, i, total),
                     id=f"bookmark-{i}",
                 )
             )
+
+    def _populate_all_lists(self) -> None:
+        """Populate all source tabs + bookmarks."""
+        for tab_id in _TAB_FEED_TYPES:
+            list_id = self._list_id_for_tab(tab_id)
+            articles = self._articles_for_tab(tab_id)
+            self._populate_source_list(list_id, articles)
+        self._populate_bookmarks()
+
+    # --- Preview ---
 
     def _update_preview(self, article: Article) -> None:
         self._selected_article = article
@@ -205,34 +332,50 @@ class DashboardScreen(Screen[None]):
         scroll = self.query_one("#preview-scroll", VerticalScroll)
         scroll.scroll_home(animate=False)
 
-    def _update_article_option(self, idx: int) -> None:
-        """Update a single article option in-place without rebuilding the list."""
-        if idx < 0 or idx >= len(self._filtered_articles):
-            return
-        article = self._filtered_articles[idx]
-        list_widget = self.query_one("#article-list", OptionList)
-        try:
-            list_widget.replace_option_prompt(
-                f"article-{idx}",
-                self._make_article_prompt(article),
-            )
-        except OptionDoesNotExist:
-            pass  # List may have been rebuilt; fall back to full populate
+    # --- In-place option updates ---
+
+    def _update_article_option_in_list(
+        self, list_id: str, articles: list[Article], article: Article
+    ) -> None:
+        """Update a single article option in a specific list."""
+        total = len(articles)
+        shown = self._displayed.get(list_id, _PAGE_SIZE)
+        for i, a in enumerate(articles[:shown]):
+            if a.link == article.link:
+                list_widget = self.query_one(f"#{list_id}", OptionList)
+                try:
+                    list_widget.replace_option_prompt(
+                        f"{list_id}-article-{i}",
+                        self._make_article_prompt(article, i, total),
+                    )
+                except OptionDoesNotExist:
+                    pass
+                break
+
+    def _update_article_in_all_lists(self, article: Article) -> None:
+        """Update an article's prompt in all source tabs where it appears."""
+        for tab_id in _TAB_FEED_TYPES:
+            articles = self._articles_for_tab(tab_id)
+            list_id = self._list_id_for_tab(tab_id)
+            self._update_article_option_in_list(list_id, articles, article)
 
     def _update_bookmark_options_for_read(self, article: Article) -> None:
         """Update bookmark list entries for an article that was marked read."""
         bm_widget = self.query_one("#bookmarks-list", OptionList)
         bookmarked = [a for a in self.all_articles if a.is_bookmarked]
+        total = len(bookmarked)
         for i, bm_article in enumerate(bookmarked):
             if bm_article.link == article.link:
                 try:
                     bm_widget.replace_option_prompt(
                         f"bookmark-{i}",
-                        self._make_bookmark_prompt(bm_article),
+                        self._make_bookmark_prompt(bm_article, i, total),
                     )
                 except OptionDoesNotExist:
                     pass
                 break
+
+    # --- Active article retrieval ---
 
     def _get_active_article(self) -> Article | None:
         """Return the currently highlighted article, regardless of which tab is active."""
@@ -249,31 +392,30 @@ class DashboardScreen(Screen[None]):
                 return bookmarked[highlighted]
             return None
         else:
-            list_widget = self.query_one("#article-list", OptionList)
+            list_id = self._list_id_for_tab(active_tab)
+            articles = self._articles_for_tab(active_tab)
+            shown = self._displayed.get(list_id, _PAGE_SIZE)
+            list_widget = self.query_one(f"#{list_id}", OptionList)
             highlighted = list_widget.highlighted
-            if (
-                highlighted is None
-                or highlighted < 0
-                or highlighted >= len(self._filtered_articles)
-            ):
+            if highlighted is None or highlighted < 0 or highlighted >= shown:
                 return None
-            return self._filtered_articles[highlighted]
+            return articles[highlighted]
+
+    # --- Selection handlers ---
 
     def on_option_list_option_selected(self, event: OptionList.OptionSelected) -> None:
-        """Handle selection in either the article list or bookmarks list."""
+        """Handle selection in any article list or bookmarks list."""
         option_id = event.option.id
-        if option_id and option_id.startswith("article-"):
-            idx = int(option_id.split("-", 1)[1])
-            if 0 <= idx < len(self._filtered_articles):
-                article = self._filtered_articles[idx]
-                if not article.is_read:
-                    mark_article_read(article.link)
-                    article.is_read = True
-                    # Lazy update: only refresh the changed option, not the whole list
-                    self._update_article_option(idx)
-                    self._update_bookmark_options_for_read(article)
-                self._update_preview(article)
-        elif option_id and option_id.startswith("bookmark-"):
+        if not option_id or option_id.startswith("empty"):
+            return
+
+        # "Load more" selected — append next page
+        if option_id.endswith("-load-more"):
+            list_id = option_id.replace("-load-more", "")
+            self._load_more(list_id)
+            return
+
+        if option_id.startswith("bookmark-"):
             bookmarked = [a for a in self.all_articles if a.is_bookmarked]
             idx = int(option_id.split("-", 1)[1])
             if 0 <= idx < len(bookmarked):
@@ -281,27 +423,61 @@ class DashboardScreen(Screen[None]):
                 if not article.is_read:
                     mark_article_read(article.link)
                     article.is_read = True
-                    # Lazy update: update the article in the main list
-                    art_idx = self._find_article_index(article)
-                    if art_idx is not None:
-                        self._update_article_option(art_idx)
+                    self._update_article_in_all_lists(article)
                     # Update the bookmark entry in-place
                     bm_widget = self.query_one("#bookmarks-list", OptionList)
                     try:
                         bm_widget.replace_option_prompt(
                             f"bookmark-{idx}",
-                            self._make_bookmark_prompt(article),
+                            self._make_bookmark_prompt(
+                                article, idx, len(bookmarked)
+                            ),
                         )
                     except OptionDoesNotExist:
                         pass
                 self._update_preview(article)
+            return
 
-    def _find_article_index(self, article: Article) -> int | None:
-        """Find the index of an article in _filtered_articles by link."""
-        for i, a in enumerate(self._filtered_articles):
+        # Source list articles: option ID is "{list_id}-article-{idx}"
+        if "-article-" in option_id:
+            # Extract the list ID prefix and index
+            parts = option_id.rsplit("-article-", 1)
+            if len(parts) == 2:
+                list_id = parts[0]
+                idx = int(parts[1])
+                # Find which tab this list belongs to
+                articles = self._articles_for_list_id(list_id)
+                if articles and 0 <= idx < len(articles):
+                    article = articles[idx]
+                    if not article.is_read:
+                        mark_article_read(article.link)
+                        article.is_read = True
+                        self._update_article_in_all_lists(article)
+                        self._update_bookmark_options_for_read(article)
+                    self._update_preview(article)
+
+    def _articles_for_list_id(self, list_id: str) -> list[Article]:
+        """Map a list widget ID back to its filtered articles."""
+        tab_map = {
+            "all-list": "all-tab",
+            "rss-list": "rss-tab",
+            "reddit-list": "reddit-tab",
+            "twitter-list": "twitter-tab",
+        }
+        tab_id = tab_map.get(list_id)
+        if tab_id:
+            return self._articles_for_tab(tab_id)
+        return self._filtered_articles
+
+    def _find_article_index_in_list(self, list_id: str, article: Article) -> int | None:
+        """Find the index of an article in a specific list."""
+        articles = self._articles_for_list_id(list_id)
+        for i, a in enumerate(articles):
             if a.link == article.link:
                 return i
         return None
+
+    # --- Actions ---
 
     def action_read_article(self) -> None:
         article = self._get_active_article()
@@ -310,10 +486,7 @@ class DashboardScreen(Screen[None]):
             return
         mark_article_read(article.link)
         article.is_read = True
-        # Lazy update: refresh the article option in the main list
-        art_idx = self._find_article_index(article)
-        if art_idx is not None:
-            self._update_article_option(art_idx)
+        self._update_article_in_all_lists(article)
         self._update_bookmark_options_for_read(article)
 
         app = self.app
@@ -329,10 +502,7 @@ class DashboardScreen(Screen[None]):
         article.is_bookmarked = is_bookmarked
         label = "Bookmarked" if is_bookmarked else "Bookmark removed"
         self.notify(label, severity="information")
-        # Lazy update: refresh the article option in the main list
-        art_idx = self._find_article_index(article)
-        if art_idx is not None:
-            self._update_article_option(art_idx)
+        self._update_article_in_all_lists(article)
         # Bookmarks list must be fully rebuilt (set of bookmarked articles changed)
         self._populate_bookmarks()
         # Re-focus the bookmarks list and restore a sensible highlight position
@@ -369,6 +539,12 @@ class DashboardScreen(Screen[None]):
 
         self.app.push_screen(InputScreen("Enter RSS feed URL:", _on_result))
 
+    def action_marketplace(self) -> None:
+        """Open the RSS marketplace to discover and subscribe to feeds."""
+        app = self.app
+        if hasattr(app, "go_to_marketplace"):
+            app.go_to_marketplace()
+
     def action_delete_feed(self) -> None:
         """Show a list of all feeds so the user can select one to delete."""
         feed_urls = load_feed_urls()
@@ -391,8 +567,9 @@ class DashboardScreen(Screen[None]):
             app.run_worker(app.action_refresh(force=True))
 
     def action_view_all(self) -> None:
+        self._search_query = ""
         self._filtered_articles = list(self.all_articles)
-        self._populate_articles()
+        self._populate_all_lists()
 
     def action_search(self) -> None:
         def _on_result(result: str | None) -> None:
@@ -400,8 +577,10 @@ class DashboardScreen(Screen[None]):
                 return
             query = result.strip().lower()
             if not query:
+                self._search_query = ""
                 self._filtered_articles = list(self.all_articles)
             else:
+                self._search_query = query
                 self._filtered_articles = [
                     a
                     for a in self.all_articles
@@ -410,6 +589,6 @@ class DashboardScreen(Screen[None]):
                     or query in a.author.lower()
                     or query in a.feed_title.lower()
                 ]
-            self._populate_articles()
+            self._populate_all_lists()
 
         self.app.push_screen(InputScreen("Search articles:", _on_result))

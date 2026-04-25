@@ -4,20 +4,41 @@ build-backend = "hatchling.build"
 
 [project]
 name = "rss-cli"
-version = "0.2.0"
+version = "0.3.0"
 description = "A beautiful terminal RSS feed reader powered by Textual"
 readme = "README.md"
-license = { text = "MIT" }
+license = "MIT"
 requires-python = ">=3.11"
 authors = [{ name = "Mohammed Alsahli", email = "mohammed.saud.alsahli@gmail.com" }]
-keywords = ["terminal", "rss", "feed", "tui", "textual"]
+keywords = ["terminal", "rss", "feed", "tui", "textual", "news", "reader"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: End Users/Desktop",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Communications :: Newsreaders",
+    "Topic :: Terminals",
+    "Typing :: Typed",
+]
 dependencies = [
     "feedparser>=6.0.12",
     "httpx>=0.28.1",
+    "readability-lxml>=0.8.1",
     "rich>=15.0.0",
     "textual>=8.2.4",
     "typer>=0.24.2",
 ]
+
+[project.urls]
+Homepage = "https://github.com/MohammedSaudAlsahli/rss-cli"
+Repository = "https://github.com/MohammedSaudAlsahli/rss-cli"
+Issues = "https://github.com/MohammedSaudAlsahli/rss-cli/issues"
+Changelog = "https://github.com/MohammedSaudAlsahli/rss-cli/releases"
 
 [project.scripts]
 rss = "rss_cli.cli:app"

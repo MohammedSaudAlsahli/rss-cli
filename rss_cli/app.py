@@ -7,6 +7,7 @@ from textual.binding import Binding
 
 from rss_cli.models.article import Article, Feed
 from rss_cli.screens.dashboard import DashboardScreen
+from rss_cli.screens.marketplace import MarketplaceScreen
 from rss_cli.screens.reader import ReaderScreen
 from rss_cli.services.fetcher import fetch_feeds
 from rss_cli.themes import THEMES
@@ -47,6 +48,10 @@ class RssCliApp(App[None]):
             lambda: ReaderScreen(),  # type: ignore[arg-type]
             name="reader",
         )
+        self.install_screen(
+            lambda: MarketplaceScreen(),  # type: ignore[arg-type]
+            name="marketplace",
+        )
         self.push_screen("dashboard")
         self.run_worker(self.action_refresh())
 
@@ -59,6 +64,7 @@ class RssCliApp(App[None]):
 
     async def action_refresh(self, force: bool = False) -> None:
         """Refresh all feeds. Uses cache unless force=True."""
+        self.notify("Refreshing feeds...", severity="information")
         self.feeds = await fetch_feeds(force=force)
         self.all_articles = []
         for feed in self.feeds:
@@ -71,6 +77,12 @@ class RssCliApp(App[None]):
         except Exception:
             pass
 
+        total = len(self.all_articles)
+        self.notify(
+            f"✓ Refreshed {len(self.feeds)} feeds · {total} articles",
+            severity="information",
+        )
+
     def go_to_reader(self, article: Article) -> None:
         """Navigate to article reader."""
         try:
@@ -78,6 +90,13 @@ class RssCliApp(App[None]):
             if hasattr(screen, "set_article"):
                 screen.set_article(article)
             self.push_screen("reader")
+        except Exception:
+            pass
+
+    def go_to_marketplace(self) -> None:
+        """Navigate to the RSS marketplace."""
+        try:
+            self.push_screen("marketplace")
         except Exception:
             pass
 

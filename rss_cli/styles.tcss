@@ -31,6 +31,10 @@
 }
 
 /* ===== Lists ===== */
+#all-list,
+#rss-list,
+#reddit-list,
+#twitter-list,
 #bookmarks-list {
     height: 1fr;
 }
@@ -88,4 +92,14 @@ _FeedSelectScreen {
 /* ===== Footer ===== */
 Footer {
     dock: bottom;
+}
+
+/* ===== Marketplace Screen ===== */
+#marketplace-header {
+    height: auto;
+    padding: 0 1;
+    color: $text;
+    text-style: bold;
+    background: $surface;
+    border-bottom: solid $primary;
 }

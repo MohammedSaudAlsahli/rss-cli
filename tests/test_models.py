@@ -1,6 +1,6 @@
 """Tests for RSS CLI models."""
 
-from datetime import datetime
+from datetime import UTC, datetime
 from unittest.mock import patch
 
 from rss_cli.models.article import Article, _format_date, _parse_date
@@ -19,15 +19,15 @@ class TestParseDate:
 
     def test_none_returns_min(self) -> None:
         result = _parse_date(None)
-        assert result == datetime.min
+        assert result == datetime.min.replace(tzinfo=UTC)
 
     def test_empty_returns_min(self) -> None:
         result = _parse_date("")
-        assert result == datetime.min
+        assert result == datetime.min.replace(tzinfo=UTC)
 
     def test_invalid_returns_min(self) -> None:
         result = _parse_date("not a date at all")
-        assert result == datetime.min
+        assert result == datetime.min.replace(tzinfo=UTC)
 
 
 class TestFormatDate:

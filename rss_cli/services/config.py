@@ -75,7 +75,7 @@ class Config:
 
     def __init__(self) -> None:
         self.cache_ttl_seconds: int = 1800  # 30 minutes default
-        self.max_articles_per_feed: int = 50
+        self.max_articles_per_feed: int = 200
         self.nitter_instances: list[str] = list(DEFAULT_NITTER_INSTANCES)
         self._load()
 
