@@ -1,44 +1,56 @@
 # RSS CLI
 
-A beautiful terminal RSS feed reader powered by [Textual](https://textual.textualize.io/).
+A beautiful, modern terminal RSS feed reader powered by [Textual](https://textual.textualize.io/).
 
 ![Python](https://img.shields.io/badge/python-3.11+-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![PyPI](https://img.shields.io/pypi/v/rss-cli)
 
-## Features
+## 🚀 Quick Start
 
-- **Interactive TUI** — Full terminal UI with keyboard navigation, not just text output
-- **Source-type Tabs** — Filter articles by source: All, RSS, Reddit, Twitter/X, Bookmarks
-- **RSS Marketplace** — Discover and subscribe to feeds by category or search (powered by Feedly)
-- **Full Article Fetch** — Press `f` to fetch the full article content from the web when RSS feeds only provide snippets
-- **HTML → Markdown** — Rich article rendering with proper headings, links, lists, code blocks, and more
-- **Article Pagination** — Browse 25 articles at a time with "Load more" for large feeds
-- **Article Numbering** — See your position: `1/62` shows article index and total count
-- **Read Tracking** — Articles are marked as read automatically
-- **Bookmarks** — Save articles with `b` and view them in the Bookmarks tab
-- **Search** — Filter articles by keyword across title, description, author, and feed
-- **Feed Management** — Add, remove, and browse RSS feeds interactively
-- **Reddit & Twitter/X** — Built-in support for Reddit RSS and Nitter (Twitter/X) feeds with instance fallback
-- **Caching** — Feeds are cached with configurable TTL (30 min default)
-- **Parallel Fetching** — All feeds fetched concurrently with async httpx
-- **Browser Integration** — Open articles in your default browser with `o`
-- **Theme Cycling** — Switch between dark themes with `t`
-- **Refresh Notifications** — See "Refreshing feeds…" and "✓ Refreshed X feeds · Y articles"
+The fastest way to get started:
 
-## Install
+```bash
+pipx install rss-cli
+rss
+```
 
+## 📦 Installation
+
+### Recommended (Global Tool)
+Use [pipx](https://github.com/pypa/pipx) or [uv](https://github.com/astral-sh/uv) to install as a standalone CLI tool without affecting your global Python environment.
+
+```bash
+# Using pipx
+pipx install rss-cli
+
+# Using uv (fastest)
+uv tool install rss-cli
+```
+
+### Standard Pip
 ```bash
 pip install rss-cli
 ```
 
-Or install from source:
-
+### From Source
 ```bash
 git clone https://github.com/MohammedSaudAlsahli/rss-cli.git
 cd rss-cli
 uv sync
+uv run rss
 ```
+
+## ✨ Features
+
+- **🎨 Beautiful TUI** — Polished terminal interface with mouse & keyboard support.
+- **🔍 RSS Marketplace** — Discover new feeds by category or search (Tech, Programming, AI, etc.).
+- **🌐 Reddit & Twitter/X** — Built-in support for subreddit feeds and Nitter (Twitter) instances.
+- **📄 Full Article Fetch** — Fetch and convert web articles to clean Markdown directly in the terminal.
+- **📖 Tabs & Filtering** — Quickly switch between All, RSS, Reddit, Twitter, and Bookmarks.
+- **⚡ Parallel Fetching** — Blazing fast feed updates using async httpx.
+- **🌓 Theme Support** — Cycle through multiple dark/light themes with a single keypress.
+- **📥 Article Numbering & Pagination** — Never lose your place in large feeds.
 
 ## Usage
 
